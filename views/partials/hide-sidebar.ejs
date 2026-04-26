@@ -1,0 +1,105 @@
+<%
+  // Sidebar แสดงสถานะ player ด้านข้าง
+  // ใช้ใน layout ที่มี sidebar: combat, map, inventory
+  // ซ่อนได้โดยส่ง hideSidebar = true จาก controller
+  const showSidebar = typeof player !== 'undefined' && player
+                   && !(typeof hideSidebar !== 'undefined' && hideSidebar);
+%>
+
+<% if (showSidebar) { %>
+<aside class="sidebar animate-fadein">
+
+  <!-- Character Panel -->
+  <div class="panel panel--gold panel--ornate">
+    <div class="panel-header">
+      <span class="panel-title">นักผจญภัย</span>
+      <span class="badge badge--gold"><%= player.current_location || 'Village' %></span>
+    </div>
+    <div class="panel-body">
+
+      <div class="text-center mb-md">
+        <div style="font-size: 48px; line-height:1; margin-bottom: 8px;"><%= player.avatar || '🧙' %></div>
+        <div class="text-gold" style="font-family: var(--font-display); font-size: 15px; letter-spacing: 2px;">
+          <%= player.username %>
+        </div>
+        <div class="text-mono text-small" style="color: var(--gold-dim); margin-top: 2px;">
+          LV.<%= player.level || 1 %> &nbsp;|&nbsp; <span class="text-gold"><%= player.exp || 0 %> EXP</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- HP -->
+      <div class="stat-wrap mb-sm">
+        <div class="stat-label-row">
+          <span>❤️ HP</span>
+          <span><%= player.hp %> / <%= player.max_hp %></span>
+        </div>
+        <div class="stat-bar">
+          <div class="stat-bar__fill stat-bar__fill--hp"
+               style="width: <%= Math.max(0, Math.round(player.hp / player.max_hp * 100)) %>%;"
+               id="sidebar-hp-bar"></div>
+        </div>
+      </div>
+
+      <!-- MP -->
+      <div class="stat-wrap mb-sm">
+        <div class="stat-label-row">
+          <span>💧 MP</span>
+          <span><%= player.mp %> / <%= player.max_mp %></span>
+        </div>
+        <div class="stat-bar">
+          <div class="stat-bar__fill stat-bar__fill--mp"
+               style="width: <%= Math.max(0, Math.round(player.mp / player.max_mp * 100)) %>%"
+               id="sidebar-mp-bar"></div>
+        </div>
+      </div>
+
+      <!-- EXP -->
+      <div class="stat-wrap">
+        <div class="stat-label-row">
+          <span>⭐ EXP</span>
+          <span><%= player.exp || 0 %> / <%= player.exp_next || 100 %></span>
+        </div>
+        <div class="stat-bar">
+          <div class="stat-bar__fill stat-bar__fill--xp"
+               style="width: <%= Math.max(0, Math.min(100, Math.round((player.exp || 0) / (player.exp_next || 100) * 100))) %>%"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Gold & Turn -->
+      <div class="flex justify-between items-center">
+        <span class="text-mono text-small">💰 Gold</span>
+        <span class="text-gold text-mono"><%= player.gold || 0 %></span>
+      </div>
+      <div class="flex justify-between items-center mt-sm">
+        <span class="text-mono text-small">🎲 รอบที่เหลือ</span>
+        <span class="text-mono text-small"><%= typeof turnsLeft !== 'undefined' ? turnsLeft : '—' %></span>
+      </div>
+
+    </div>
+  </div><!-- end character panel -->
+
+  <!-- Quick Items Panel -->
+  <% if (typeof quickItems !== 'undefined' && quickItems && quickItems.length > 0) { %>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">ไอเทมด่วน</span>
+    </div>
+    <div class="panel-body" style="padding: 12px;">
+      <% quickItems.forEach(item => { %>
+      <button class="btn btn--sm btn--ghost w-full mb-sm use-item-btn"
+              data-item-id="<%= item.item_id %>"
+              <%= item.quantity < 1 ? 'disabled' : '' %>>
+        <%= item.icon || '🧪' %> <%= item.name %>
+        <span class="badge badge--gold" style="margin-left: auto;"><%= item.quantity %></span>
+      </button>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+</aside>
+<% } %>

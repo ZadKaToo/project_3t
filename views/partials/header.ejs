@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' — Dungeon Scholar' : 'Dungeon Scholar' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="page-wrapper">
+
+<%
+  const isLoggedIn = typeof player !== 'undefined' && player;
+  const isAuthPage = typeof hideNav !== 'undefined' && hideNav;
+%>
+
+<% if (!isAuthPage) { %>
+<header class="site-header">
+  <div class="container--wide">
+    <nav class="nav">
+
+      <a href="/" class="nav-logo">
+        <span class="nav-logo__icon">⚔️</span>
+        <span class="nav-logo__text">Dungeon Scholar</span>
+      </a>
+
+      <% if (isLoggedIn) { %>
+      <div class="nav-stats">
+
+        <div class="nav-stat">
+          <span class="nav-stat__icon">❤️</span>
+          <div class="stat-wrap">
+            <div class="stat-label-row">
+              <span>HP</span>
+              <span><%= player.hp %>/<%= player.max_hp %></span>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-bar__fill stat-bar__fill--hp"
+                   style="width: <%= Math.max(0, Math.round(player.hp / player.max_hp * 100)) %>%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-stat">
+          <span class="nav-stat__icon">💧</span>
+          <div class="stat-wrap">
+            <div class="stat-label-row">
+              <span>MP</span>
+              <span><%= player.mp %>/<%= player.max_mp %></span>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-bar__fill stat-bar__fill--mp"
+                   style="width: <%= Math.max(0, Math.round(player.mp / player.max_mp * 100)) %>%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-stat nav-stat--gold">
+          <span>💰</span>
+          <span class="text-gold text-mono"><%= player.gold %> G</span>
+        </div>
+
+      </div>
+
+      <div class="nav-links">
+        <a href="/game/map" class="nav-link">🗺️ แผนที่</a>
+        <a href="/game/inventory" class="nav-link">🎒 กระเป๋า</a>
+        <a href="/game/save" class="nav-link hide-mobile">💾 บันทึก</a>
+        <a href="/auth/logout" class="btn btn--sm btn--ghost">ออกจากระบบ</a>
+      </div>
+
+      <% } else { %>
+      <div class="nav-links">
+        <a href="/auth/login" class="btn btn--sm btn--ghost">เข้าสู่ระบบ</a>
+        <a href="/auth/register" class="btn btn--sm">สมัครสมาชิก</a>
+      </div>
+      <% } %>
+
+    </nav>
+  </div>
+</header>
+<% } %>
+
+<main class="main-content">
