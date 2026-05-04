@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* Effect ทอยเต๋า */
+        @keyframes rollDice {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(0.9); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .rolling { animation: rollDice 0.5s linear infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
+    <%- include('partials/header') %>
+    <%- include('partials/inventorySidebar') %>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 flex flex-col gap-4">
+        <div class="flex justify-between items-center mb-2">
+            <h2 class="text-2xl text-dnd-accent font-bold">
+                <i class="fa-solid fa-map"></i> แผนที่: <%= location.name %>
+            </h2>
+            <button onclick="toggleSidebar()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-white">
+                <i class="fa-solid fa-backpack"></i> เปิดกระเป๋า
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow">
+            <div class="bg-dnd-panel border border-gray-700 rounded-lg p-6 flex flex-col items-center">
+                <h3 class="text-xl text-gray-300 mb-6 text-center">ทอยลูกเต๋าเพื่อเดินทาง (ด่านที่ <%= player.current_stage %>)</h3>
+                
+                <div class="w-32 h-32 bg-gray-900 border border-dnd-accent rounded-xl flex items-center justify-center mb-6 shadow-lg relative">
+                    <span id="mapDiceDisplay" class="text-6xl text-dnd-accent font-bold"><i id="mapDiceIcon" class="fa-solid fa-dice-d20"></i></span>
+                </div>
+
+                <button id="rollDiceBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded mb-4 transition">
+                    <i class="fa-solid fa-hand-holding-magic"></i> ทอยลูกเต๋า (Roll D20)
+                </button>
+
+                <div id="mapLog" class="w-full bg-gray-900 p-3 rounded border border-gray-700 text-sm text-gray-400 h-48 overflow-y-auto">
+                    <p class="mb-1"><span class="text-yellow-500">[ระบบ]</span> คุณกำลังอยู่ใน <%= location.name %></p>
+                    
+                    <% if (location.description) { %>
+                        <p class="mb-1 text-gray-500 italic">"<%= location.description %>"</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+    <%- include('partials/notification') %>
+
+        <script>
+            const rollDiceBtn = document.getElementById('rollDiceBtn');
+            const mapDiceDisplay = document.getElementById('mapDiceDisplay');
+            const mapDiceIcon = document.getElementById('mapDiceIcon');
+            const mapLog = document.getElementById('mapLog');
+
+            function addLog(message) {
+                mapLog.innerHTML += `<p class="mb-1 border-b border-gray-800 pb-1">${message}</p>`;
+                mapLog.scrollTop = mapLog.scrollHeight; 
+            }
+
+            // ฟังก์ชันสำหรับเปิดปุ่มทอยเต๋าอีกครั้ง
+            function unlockDiceButton() {
+                rollDiceBtn.disabled = false;
+                rollDiceBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            rollDiceBtn.addEventListener('click', () => {
+                rollDiceBtn.disabled = true;
+                rollDiceBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                mapDiceIcon.classList.add('rolling');
+                
+                const rollResult = Math.floor(Math.random() * 20) + 1;
+
+                setTimeout(() => {
+                    mapDiceIcon.classList.remove('rolling');
+                    mapDiceDisplay.innerHTML = `
+                        <span class="relative inline-block text-white font-bold" style="font-size: 3rem;">
+                            <i class="fa-solid fa-dice-d20 text-6xl text-dnd-accent absolute -left-2 -top-1 -z-10 opacity-50"></i>
+                            ${rollResult}
+                        </span>`;
+
+                    fetch('/map/explore', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ roll: rollResult })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        // ❌ ถ้ามี Error จากระบบ (เช่น Session หลุด ล็อคอินหาย)
+                        if (data.error) {
+                            addLog(`<span class="text-red-500 font-bold">[ระบบ] ${data.error}</span>`);
+                            unlockDiceButton();
+                            if (data.redirect) setTimeout(() => window.location.href = data.redirect, 1500);
+                            return;
+                        }
+
+                        // ⚔️ 1. เจอมอนสเตอร์ทั่วไป
+                        if (data.type === 'combat') {
+                            addLog(`<span class="text-red-500 font-bold">[อันตราย!] คุณพบมอนสเตอร์ กำลังเข้าสู่ฉากต่อสู้...</span>`);
+                            setTimeout(() => window.location.href = data.redirect, 1500);
+                        } 
+                        // 🐉 2. เจอบอส
+                        else if (data.type === 'boss') {
+                            addLog(`<span class="text-red-600 font-bold text-lg">${data.message}</span>`);
+                            setTimeout(() => window.location.href = data.redirect, 2000);
+                        }
+                        // 🪤 3. เจอกับดัก
+                        else if (data.type === 'trap') {
+                            addLog(`<span class="text-orange-500">[กับดัก] ทอยได้ ${rollResult}: ${data.message} <br><small class="text-gray-400">${data.details || ''}</small></span>`);
+                            unlockDiceButton(); // เปิดปุ่มให้ทอยต่อ
+                        } 
+                        // 💰 4. เจอสมบัติ
+                        else if (data.type === 'treasure') {
+                            addLog(`<span class="text-yellow-400 font-bold">[สมบัติ] ทอยได้ ${rollResult}: ${data.message} <br><small class="text-gray-400">${data.details || ''}</small></span>`);
+                            unlockDiceButton(); 
+                        }
+                        // 🧙‍♂️ 5. เจอ NPC หรือ Event (✅ แก้ตรงนี้! เพิ่ม data.type === 'npc')
+                        else if (data.type === 'npc' || data.type === 'event') {
+                            addLog(`<span class="text-purple-400 font-bold">[เหตุการณ์] ทอยได้ ${rollResult}: ${data.message} <br><small class="text-gray-400">${data.details || ''}</small></span>`);
+                            unlockDiceButton(); 
+                        }
+                        // 🏪 6. เจอร้านค้าลับ
+                        else if (data.type === 'shop') {
+                            addLog(`<span class="text-green-400 font-bold">[ร้านค้า] ${data.message}</span>`);
+                            setTimeout(() => window.location.href = data.redirect, 1500);
+                        }
+                        // ☠️ 7. เสียชีวิต (Game Over)
+                        else if (data.type === 'gameover') {
+                            addLog(`<span class="text-gray-500 font-bold">[เสียชีวิต] ${data.message}</span>`);
+                            setTimeout(() => window.location.href = data.redirect, 2000);
+                        }
+                        else {
+                            // กันเหนียว ถ้ามี type อื่นหลุดมา จะได้ไม่ค้าง
+                            addLog(`<span class="text-gray-400">คุณเดินผ่านพื้นที่รกร้าง... ไม่มีอะไรเกิดขึ้น</span>`);
+                            unlockDiceButton();
+                        }
+                        
+                        // 💡 ทริคเสริม: ถ้าโดนกับดัก เลือดลด ควรให้หน้าเว็บรีเฟรช 1 ครั้งเพื่ออัปเดตหลอดเลือด
+                        if (['trap', 'treasure', 'npc', 'event'].includes(data.type)) {
+                            // สั่งโหลดหน้าใหม่หลังจากโชว์ข้อความไปแล้ว 2 วินาที (เพื่อให้เห็นข้อความก่อน)
+                            setTimeout(() => window.location.reload(), 2000);
+                        }
+                    })
+                    .catch(err => {
+                        // ... โค้ดเดิม ...
+                        console.error(err);
+                        addLog(`<span class="text-red-500">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์</span>`);
+                        unlockDiceButton(); // ถ้า Error ก็ปลดล็อกปุ่มให้ลองกดใหม่
+                    });
+                }, 1000); 
+            });
+        </script>
+</body>
+</html>

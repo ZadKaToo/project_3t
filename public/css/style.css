@@ -1,0 +1,553 @@
+/* ═══════════════════════════════════════════════════════
+   D&D QUIZ RPG — DARK FANTASY STYLESHEET
+   Inspired by Dark Souls / Elden Ring / Bloodborne
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* ── ROOT TOKENS ────────────────────────────────────── */
+:root {
+  /* Stone & Ash */
+  --col-void:        #080806;
+  --col-deep:        #0e0d0a;
+  --col-stone:       #161410;
+  --col-panel:       #1c1a15;
+  --col-surface:     #23201a;
+  --col-muted:       #2e2b23;
+  --col-border:      #3a342a;
+  --col-border-lit:  #5a5040;
+
+  /* Text */
+  --col-ash:         #a89f8c;
+  --col-parchment:   #d4c9a8;
+  --col-ivory:       #e8dfc4;
+
+  /* Accent Gold */
+  --col-gold:        #c9a84c;
+  --col-gold-bright: #e8c96a;
+  --col-gold-dim:    #7a6328;
+
+  /* Status */
+  --col-blood:       #8b1a1a;
+  --col-blood-lit:   #c42b2b;
+  --col-sanity:      #6b3fa0;
+  --col-sanity-lit:  #9b6dd0;
+  --col-bone:        #b5a98a;
+
+  /* Typography */
+  --font-title:   'Cinzel', serif;
+  --font-body:    'Crimson Text', serif;
+  --font-lore:    'IM Fell English', serif;
+
+  /* Transition */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── BASE ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--col-deep);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  color: var(--col-parchment);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  color: var(--col-ivory);
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+p {
+  font-family: var(--font-body);
+  color: var(--col-parchment);
+}
+
+a {
+  color: var(--col-gold);
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+a:hover {
+  color: var(--col-gold-bright);
+}
+
+/* ── TAILWIND OVERRIDES ─────────────────────────────── */
+/* Override the Tailwind dnd-* colors with our tokens */
+.bg-dnd-dark    { background-color: var(--col-deep) !important; }
+.bg-dnd-panel   { background-color: var(--col-panel) !important; }
+.text-dnd-accent { color: var(--col-gold) !important; }
+.text-dnd-sanity { color: var(--col-sanity-lit) !important; }
+.border-gray-700 { border-color: var(--col-border) !important; }
+.border-gray-600 { border-color: var(--col-border-lit) !important; }
+.bg-gray-800    { background-color: var(--col-surface) !important; }
+.bg-gray-900    { background-color: var(--col-panel) !important; }
+.bg-black\/20   { background-color: rgba(0,0,0,0.3) !important; }
+
+/* ── HEADER ─────────────────────────────────────────── */
+header.bg-dnd-panel {
+  background: var(--col-panel) !important;
+  border-bottom: 1px solid var(--col-border) !important;
+  box-shadow:
+    0 1px 0 rgba(201,168,76,0.08),
+    0 4px 24px rgba(0,0,0,0.6);
+  position: relative;
+}
+
+header.bg-dnd-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--col-gold-dim) 20%,
+    var(--col-gold) 50%,
+    var(--col-gold-dim) 80%,
+    transparent 100%);
+  opacity: 0.5;
+}
+
+/* Logo */
+#homeLogo {
+  font-family: var(--font-title) !important;
+  font-size: 1.1rem !important;
+  color: var(--col-gold) !important;
+  letter-spacing: 0.08em;
+  transition: color 0.2s var(--ease), text-shadow 0.2s var(--ease);
+}
+#homeLogo:hover {
+  color: var(--col-gold-bright) !important;
+  text-shadow: 0 0 20px rgba(201,168,76,0.3);
+}
+#homeLogo i {
+  opacity: 0.85;
+}
+
+/* HUD Stats */
+.text-green-400 {
+  color: #6aab6a !important;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+.text-yellow-400 {
+  color: var(--col-gold) !important;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+.text-dnd-sanity {
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+/* Username */
+header .text-white.font-bold {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  color: var(--col-ivory) !important;
+  letter-spacing: 0.06em;
+}
+
+/* Inventory Button */
+#inventoryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--col-border);
+  border-radius: 3px;
+  background: var(--col-muted);
+  color: var(--col-gold) !important;
+  transition: all 0.2s var(--ease);
+}
+#inventoryBtn:hover {
+  background: var(--col-surface);
+  border-color: var(--col-gold-dim);
+  color: var(--col-gold-bright) !important;
+}
+#inventoryBtn i { font-size: 0.875rem; }
+
+/* Logout */
+header a[href="/logout"] {
+  color: #8b3a3a !important;
+  border-left: 1px solid var(--col-border) !important;
+  font-size: 0.875rem;
+  transition: color 0.2s var(--ease);
+}
+header a[href="/logout"]:hover {
+  color: var(--col-blood-lit) !important;
+}
+
+/* ── INVENTORY SIDEBAR ───────────────────────────────── */
+#inventorySidebar {
+  background: var(--col-panel) !important;
+  border-left: 1px solid var(--col-border) !important;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.7);
+}
+
+/* Sidebar Header */
+#inventorySidebar > div:first-child {
+  background: var(--col-stone) !important;
+  border-bottom: 1px solid var(--col-border) !important;
+}
+#inventorySidebar h3 {
+  font-family: var(--font-title) !important;
+  font-size: 1rem !important;
+  color: var(--col-gold) !important;
+  letter-spacing: 0.08em;
+}
+#inventorySidebar > div:first-child button {
+  color: var(--col-ash);
+  transition: color 0.15s;
+}
+#inventorySidebar > div:first-child button:hover {
+  color: var(--col-ivory);
+}
+
+/* Class Banner */
+#inventorySidebar .bg-gray-800.border-b {
+  background: rgba(0,0,0,0.25) !important;
+  border-bottom: 1px solid var(--col-border) !important;
+}
+#inventorySidebar h4 {
+  font-family: var(--font-title) !important;
+  font-size: 0.95rem !important;
+  color: var(--col-ivory) !important;
+}
+#inventorySidebar p.text-gray-500 {
+  color: var(--col-ash) !important;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+}
+
+/* Equipment Slots */
+#inventorySidebar .bg-gray-900\/50 {
+  background: rgba(8,8,6,0.5) !important;
+  border: 1px dashed var(--col-border) !important;
+  transition: border-color 0.2s;
+}
+#inventorySidebar .bg-gray-900\/50:hover {
+  border-color: var(--col-border-lit) !important;
+}
+#inventorySidebar .text-gray-700 { color: var(--col-border-lit) !important; }
+#inventorySidebar .text-gray-500 { color: var(--col-ash) !important; }
+
+/* Weapon/Armor slot names */
+#inventorySidebar .text-yellow-500 { color: var(--col-gold) !important; }
+#inventorySidebar .text-blue-400   { color: #7aabe0 !important; }
+
+/* Item Cards */
+#inventorySidebar .bg-gray-800.border.border-gray-700 {
+  background: var(--col-surface) !important;
+  border: 1px solid var(--col-border) !important;
+  border-radius: 3px !important;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+#inventorySidebar .bg-gray-800.border.border-gray-700:hover {
+  background: var(--col-muted) !important;
+  border-color: var(--col-border-lit) !important;
+}
+
+/* Equipped state */
+#inventorySidebar .border-yellow-500 {
+  border-color: var(--col-gold-dim) !important;
+  background: rgba(201,168,76,0.05) !important;
+  box-shadow: inset 0 0 12px rgba(201,168,76,0.06) !important;
+}
+#inventorySidebar .shadow-\[0_0_10px_rgba\(234\,179\,8\,0\.3\)\] {
+  box-shadow: 0 0 12px rgba(201,168,76,0.15) !important;
+}
+
+/* Equipped Badge */
+#inventorySidebar .bg-yellow-500 {
+  background: var(--col-gold-dim) !important;
+  color: var(--col-ivory) !important;
+  font-family: var(--font-title);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  border-radius: 2px !important;
+}
+
+/* Item names */
+#inventorySidebar h4.text-white {
+  font-family: var(--font-title) !important;
+  font-size: 0.75rem !important;
+  color: var(--col-parchment) !important;
+  letter-spacing: 0.04em;
+}
+#inventorySidebar h4.text-yellow-400 {
+  color: var(--col-gold) !important;
+}
+#inventorySidebar p.text-gray-400 {
+  color: var(--col-ash) !important;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+/* Item Type Icons */
+/* Potion */
+.bg-red-900\/50  { background: rgba(80,10,10,0.45) !important; border-color: #5a2020 !important; }
+.text-red-400    { color: #c06060 !important; }
+/* Scroll */
+.bg-purple-900\/50 { background: rgba(50,15,80,0.45) !important; border-color: #4a2870 !important; }
+.text-purple-400   { color: #9b6dd0 !important; }
+/* Weapon */
+.border-yellow-600\/50 { border-color: var(--col-gold-dim) !important; }
+.text-yellow-500       { color: var(--col-gold) !important; }
+/* Armor */
+.bg-blue-900\/30 { background: rgba(10,25,55,0.4) !important; border-color: #2a4070 !important; }
+
+/* Quantity */
+#inventorySidebar .text-gray-300.font-bold {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  color: var(--col-ash) !important;
+}
+
+/* Item Action Buttons */
+#inventorySidebar button.bg-red-600 {
+  background: var(--col-blood) !important;
+  border: 1px solid rgba(139,26,26,0.6) !important;
+  font-family: var(--font-title);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px !important;
+  transition: background 0.15s;
+}
+#inventorySidebar button.bg-red-600:hover {
+  background: var(--col-blood-lit) !important;
+}
+#inventorySidebar button.bg-blue-600 {
+  background: #1a3560 !important;
+  border: 1px solid #2a4880 !important;
+  font-family: var(--font-title);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px !important;
+  transition: background 0.15s;
+}
+#inventorySidebar button.bg-blue-600:hover {
+  background: #204070 !important;
+}
+#inventorySidebar button.bg-gray-600 {
+  background: var(--col-muted) !important;
+  border: 1px solid var(--col-border-lit) !important;
+  font-family: var(--font-title);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px !important;
+}
+
+/* Empty Bag */
+#inventorySidebar .text-gray-500 i { color: var(--col-border-lit); }
+#inventorySidebar .text-center.text-gray-500 p {
+  font-family: var(--font-lore);
+  font-style: italic;
+  color: var(--col-ash) !important;
+}
+
+/* ── FOOTER ─────────────────────────────────────────── */
+footer {
+  background: var(--col-stone);
+  border-top: 1px solid var(--col-border);
+  position: relative;
+}
+footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--col-gold-dim) 30%,
+    var(--col-gold-dim) 70%,
+    transparent 100%);
+  opacity: 0.3;
+}
+footer p {
+  font-family: var(--font-title);
+  font-size: 0.65rem;
+  color: var(--col-ash) !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── DIVIDERS ─────────────────────────────────────────*/
+.dnd-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--col-border-lit) 30%,
+    var(--col-gold-dim) 50%,
+    var(--col-border-lit) 70%,
+    transparent);
+  margin: 1.5rem 0;
+}
+
+/* ── BUTTONS (General) ───────────────────────────────── */
+.btn-primary {
+  display: inline-block;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--col-gold);
+  background: transparent;
+  border: 1px solid var(--col-gold-dim);
+  padding: 0.5rem 1.5rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(201,168,76,0.05);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover {
+  border-color: var(--col-gold);
+  color: var(--col-gold-bright);
+  box-shadow: 0 0 16px rgba(201,168,76,0.12);
+}
+.btn-primary:hover::before { opacity: 1; }
+
+.btn-danger {
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: #c06060;
+  background: transparent;
+  border: 1px solid var(--col-blood);
+  padding: 0.5rem 1.5rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.btn-danger:hover {
+  background: rgba(139,26,26,0.15);
+  border-color: var(--col-blood-lit);
+  color: #e07070;
+}
+
+/* ── PANELS & CARDS ──────────────────────────────────── */
+.dnd-card {
+  background: var(--col-panel);
+  border: 1px solid var(--col-border);
+  border-radius: 3px;
+  position: relative;
+}
+.dnd-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--col-border-lit), transparent);
+}
+
+.dnd-panel {
+  background: var(--col-surface);
+  border: 1px solid var(--col-border);
+  border-radius: 2px;
+  padding: 1.25rem 1.5rem;
+}
+
+/* ── FORM INPUTS ─────────────────────────────────────── */
+input, select, textarea {
+  background: var(--col-stone);
+  border: 1px solid var(--col-border);
+  border-radius: 2px;
+  color: var(--col-parchment);
+  font-family: var(--font-body);
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s var(--ease);
+  outline: none;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--col-gold-dim);
+  box-shadow: 0 0 0 2px rgba(201,168,76,0.08);
+}
+input::placeholder { color: var(--col-ash); opacity: 0.6; }
+
+label {
+  font-family: var(--font-title);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--col-ash);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--col-stone); }
+::-webkit-scrollbar-thumb {
+  background: var(--col-border-lit);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--col-gold-dim); }
+
+/* ── SANITY LOW WARNING ──────────────────────────────── */
+/* (Overrides the inline <style> from header.ejs for consistency) */
+@keyframes sanity-distort {
+  0%   { filter: blur(0px) hue-rotate(0deg) contrast(1); }
+  50%  { filter: blur(1px) hue-rotate(-8deg) contrast(1.08); }
+  100% { filter: blur(2px) hue-rotate(8deg) contrast(1.15); }
+}
+@keyframes pulse-blood {
+  0%, 100% { opacity: 1; color: var(--col-sanity-lit); }
+  50%       { opacity: 0.5; color: var(--col-blood-lit); }
+}
+.sanity-low body {
+  animation: sanity-distort 4s infinite alternate ease-in-out;
+  box-shadow: inset 0 0 120px rgba(107,63,160,0.25);
+}
+.sanity-low .text-dnd-sanity {
+  animation: pulse-blood 2s infinite;
+}
+
+/* ── SELECTION ─────────────────────────────────────── */
+::selection {
+  background: rgba(201,168,76,0.2);
+  color: var(--col-ivory);
+}
+
+/* ── UTILITY ───────────────────────────────────────── */
+.text-gold    { color: var(--col-gold); }
+.text-ash     { color: var(--col-ash); }
+.text-ivory   { color: var(--col-ivory); }
+.text-blood   { color: var(--col-blood-lit); }
+.text-sanity  { color: var(--col-sanity-lit); }
+.font-title   { font-family: var(--font-title); }
+.font-lore    { font-family: var(--font-lore); font-style: italic; }

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* เพิ่ม Effect ตอนลูกเต๋ากำลังกลิ้ง */
+        @keyframes rollDice {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(0.9); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .rolling {
+            animation: rollDice 0.5s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
+    
+    <%- include('partials/header') %>
+    <%- include('partials/inventorySidebar') %>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 flex flex-col gap-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
+            <div class="bg-dnd-panel border border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center relative">
+                <h2 class="text-2xl text-red-400 font-bold mb-2"><%= monster.name %></h2>
+                
+                    <div class="bg-red-500 h-4 rounded-full transition-all duration-500" 
+                        style="width: <%= Math.max(0, (monster.hp / monster.max_hp) * 100) %>%">
+                    </div>
+                <div class="text-sm text-gray-400 mb-4">HP: <%= monster.hp %> / <%= monster.max_hp %></div>
+
+                <div class="w-48 h-48 bg-gray-800 border-2 border-red-500 rounded-lg flex items-center justify-center text-gray-500 overflow-hidden">
+                    <%- monster.image_url ? `<img src="${monster.image_url}" class="w-full h-full object-cover">` : '<i class="fa-solid fa-skull text-6xl"></i>' %>
+                </div>
+            </div>
+
+            <div class="bg-dnd-panel border border-gray-700 rounded-lg p-6 flex flex-col">
+                <h3 class="text-xl text-dnd-accent mb-4 border-b border-gray-600 pb-2">1. เลือกการกระทำ</h3>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <button type="button" class="action-btn bg-red-900/50 border border-red-500 hover:bg-red-800 p-3 rounded text-left transition" data-action="attack"><i class="fa-solid fa-sword"></i> โจมตี</button>
+                    <button type="button" class="action-btn bg-blue-900/50 border border-blue-500 hover:bg-blue-800 p-3 rounded text-left transition" data-action="defend"><i class="fa-solid fa-shield"></i> ป้องกัน</button>
+                    <button type="button" onclick="toggleSidebar()" class="bg-purple-900/50 border border-purple-500 hover:bg-purple-800 p-3 rounded text-left transition">
+                    <i class="fa-solid fa-flask"></i> ใช้/สวมใส่ไอเทม
+                    </button>
+                    <button type="button" class="action-btn bg-gray-800 border border-gray-500 hover:bg-gray-700 p-3 rounded text-left transition" data-action="flee"><i class="fa-solid fa-person-running"></i> หนี</button>
+                </div>
+
+                <h3 class="text-xl text-dnd-accent mb-4 border-b border-gray-600 pb-2">2. ตอบคำถามเพื่อรวบรวมพลัง</h3>
+                <div class="bg-gray-900 p-4 rounded border border-gray-700 flex-grow">
+                    <p class="mb-4 text-lg text-white">โจทย์: <%= question.question_text %></p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <button type="button" class="answer-btn bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-left pl-4 transition" data-answer="A">A. <%= question.option_a %></button>
+                        <button type="button" class="answer-btn bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-left pl-4 transition" data-answer="B">B. <%= question.option_b %></button>
+                        <button type="button" class="answer-btn bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-left pl-4 transition" data-answer="C">C. <%= question.option_c %></button>
+                        <button type="button" class="answer-btn bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-left pl-4 transition" data-answer="D">D. <%= question.option_d %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-dnd-panel border border-gray-700 rounded-lg p-4 flex gap-6 h-40">
+            <div class="w-1/4 flex flex-col items-center justify-center border-r border-gray-700 pr-6">
+                <form id="combatForm" action="/combat/execute" method="POST" class="flex flex-col items-center">
+                    <input type="hidden" name="monster_id" value="<%= monster.monster_id %>">
+                    <input type="hidden" name="action" id="inputAction" value="">
+                    <input type="hidden" name="answer" id="inputAnswer" value="">
+                    <input type="hidden" name="question_id" value="<%= question.question_id %>">
+                    
+                    <button type="button" id="diceBtn" class="text-5xl text-gray-600 font-bold mb-2 cursor-not-allowed transition" disabled>
+                        <i class="fa-solid fa-dice-d20" id="diceIcon"></i>
+                    </button>
+                    <span id="diceLabel" class="text-sm text-gray-500 text-center">เลือก Action และคำตอบก่อนทอยเต๋า</span>
+                </form>
+            </div>
+                <div id="battleLog" class="w-3/4 overflow-y-auto text-gray-300 space-y-2 text-sm md:text-base">
+                    <p><span class="text-blue-400">[ระบบ]</span> คุณเผชิญหน้ากับ <span class="text-red-400 font-bold"><%= monster.name %></span>!</p>
+                    
+                    <% if (typeof battleLogs !== 'undefined' && battleLogs.length > 0) { %>
+                        <% battleLogs.forEach(log => { %>
+                            <p><%- log %></p>
+                        <% }) %>
+                    <% } else { %>
+                        <p><span class="text-yellow-400">[ระบบ]</span> เลือกการกระทำและคำตอบ จากนั้นทอยเต๋าเพื่อลุย!</p>
+                    <% } %>
+                </div>
+        </div>
+
+    </main>
+
+    <%- include('partials/notification') %>
+
+    <script>
+        // ทำให้ Battle Log สกอร์ลงมาล่างสุดเสมอเมื่อโหลดหน้า
+        const battleLogBox = document.getElementById('battleLog');
+        if (battleLogBox) {
+            battleLogBox.scrollTop = battleLogBox.scrollHeight;
+        }
+        const actionBtns = document.querySelectorAll('.action-btn');
+        const answerBtns = document.querySelectorAll('.answer-btn');
+        const diceBtn = document.getElementById('diceBtn');
+        const diceIcon = document.getElementById('diceIcon');
+        const diceLabel = document.getElementById('diceLabel');
+        const combatForm = document.getElementById('combatForm');
+        
+        const inputAction = document.getElementById('inputAction');
+        const inputAnswer = document.getElementById('inputAnswer');
+        const inputRoll = document.getElementById('inputRoll');
+
+        // จัดการคลิกเลือก Action
+        actionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                actionBtns.forEach(b => b.classList.remove('ring-4', 'ring-white', 'scale-105'));
+                btn.classList.add('ring-4', 'ring-white', 'scale-105');
+                inputAction.value = btn.dataset.action;
+                checkReadyToRoll();
+            });
+        });
+
+        // จัดการคลิกเลือก คำตอบ
+        answerBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                answerBtns.forEach(b => b.classList.remove('ring-4', 'ring-dnd-accent', 'bg-gray-600'));
+                btn.classList.add('ring-4', 'ring-dnd-accent', 'bg-gray-600');
+                inputAnswer.value = btn.dataset.answer;
+                checkReadyToRoll();
+            });
+        });
+
+        // เช็คว่าเลือกครบหรือยัง ถ้าครบให้เปิดปุ่มลูกเต๋า
+        function checkReadyToRoll() {
+            if (inputAction.value && inputAnswer.value) {
+                diceBtn.disabled = false;
+                diceBtn.classList.remove('text-gray-600', 'cursor-not-allowed');
+                diceBtn.classList.add('text-dnd-accent', 'cursor-pointer', 'hover:scale-110');
+                diceLabel.innerHTML = `<span class="text-dnd-accent font-bold">คลิกเพื่อทอยเต๋า!</span>`;
+            }
+        }
+
+        // จัดการการทอยเต๋าและส่งข้อมูล
+        diceBtn.addEventListener('click', () => {
+            if (!inputAction.value || !inputAnswer.value) return;
+            
+            // ล็อคปุ่มกันกดซ้ำ
+            diceBtn.disabled = true;
+            actionBtns.forEach(b => b.disabled = true);
+            answerBtns.forEach(b => b.disabled = true);
+            
+            // แสดง Animation ทอยเต๋า
+            diceIcon.classList.add('rolling');
+            diceLabel.innerText = "กำลังทอยเต๋า...ส่งคำสั่งให้สวรรค์ตัดสิน!";
+
+            // รอให้แอนิเมชันหมุนสัก 1 วินาทีให้ตื่นเต้น แล้ว Submit ฟอร์มไปเลย
+            // ❌ ไม่ต้องมี Math.random() ตรงนี้แล้ว!
+            setTimeout(() => {
+                combatForm.submit(); 
+            }, 1000); 
+        });
+    </script>
+</body>
+</html>

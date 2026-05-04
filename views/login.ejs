@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-dnd-panel p-8 rounded-lg shadow-2xl max-w-md w-full border border-gray-700">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-dnd-accent mb-2"><i class="fa-solid fa-dragon"></i></h1>
+            <h2 class="text-2xl font-bold text-white">เข้าสู่ระบบ</h2>
+        </div>
+        
+        <form action="/login" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-gray-400 mb-1 text-sm">ชื่อนักผจญภัย (Username)</label>
+                <input type="text" name="username" class="w-full bg-gray-900 text-white border border-gray-600 rounded px-4 py-2 focus:outline-none focus:border-dnd-accent" required>
+            </div>
+            <div>
+                <label class="block text-gray-400 mb-1 text-sm">รหัสผ่าน (Password)</label>
+                <input type="password" name="password" class="w-full bg-gray-900 text-white border border-gray-600 rounded px-4 py-2 focus:outline-none focus:border-dnd-accent" required>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+                <a href="/register" class="text-blue-400 hover:text-blue-300">สร้างตัวละครใหม่</a>
+                <a href="/resetpassword" class="text-gray-400 hover:text-gray-300">ลืมรหัสผ่าน?</a>
+            </div>
+            <button type="submit" class="w-full bg-dnd-accent hover:bg-yellow-500 text-gray-900 font-bold py-2 rounded transition mt-4">
+                เข้าสู่เกม <i class="fa-solid fa-right-to-bracket ml-1"></i>
+            </button>
+        </form>
+    </div>
+</body>
+</html>

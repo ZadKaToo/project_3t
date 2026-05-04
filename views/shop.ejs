@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-900 text-gray-200">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6">
+        
+        <div class="w-full md:w-2/3 bg-dnd-panel p-6 rounded-lg shadow-xl border border-gray-700">
+            <div class="flex justify-between items-center border-b border-gray-600 pb-4 mb-6">
+                <h2 class="text-3xl font-bold text-dnd-accent">
+                    <i class="fa-solid fa-store mr-2"></i> ร้านค้าลึกลับ
+                </h2>
+                <div class="bg-yellow-600 text-black px-4 py-2 rounded-full font-bold shadow-inner">
+                    <i class="fa-solid fa-coins"></i> <span id="playerGold"><%= player.gold %></span> Gold
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <% if (shopItems && shopItems.length > 0) { %>
+                    <% shopItems.forEach(item => { %>
+                        <div class="bg-gray-800 border border-gray-600 p-4 rounded-lg flex flex-col justify-between hover:border-dnd-accent transition">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">
+                                    <% if (item.type === 'heal') { %><i class="fa-solid fa-flask text-red-500"></i><% } %>
+                                    <% if (item.type === 'weapon') { %><i class="fa-solid fa-sword text-gray-400"></i><% } %>
+                                    <%= item.name %>
+                                </h3>
+                                <p class="text-sm text-gray-400 mb-2"><%= item.description %></p>
+                                <p class="text-xs text-green-400 mb-4">ผลลัพธ์: +<%= item.effect_value %> <%= item.type %></p>
+                            </div>
+                            
+                            <button onclick="buyItem('<%= item.item_id %>', <%= item.price %>)" 
+                                    class="w-full py-2 bg-yellow-600 hover:bg-yellow-500 text-black font-bold rounded transition flex justify-center items-center gap-2">
+                                ซื้อ (<%= item.price %> Gold)
+                            </button>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-span-2 text-center py-8 text-gray-500">
+                        <i class="fa-solid fa-box-open text-4xl mb-2"></i>
+                        <p>แม่ค้ากำลังไปเติมของ... ไม่มีสินค้าขายในตอนนี้</p>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-600 flex justify-between">
+                <a href="/map" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition">
+                    <i class="fa-solid fa-arrow-left"></i> กลับไปแผนที่
+                </a>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/3 bg-dnd-panel p-6 rounded-lg shadow-xl border border-gray-700 h-fit">
+            <h3 class="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">
+                <i class="fa-solid fa-briefcase"></i> กระเป๋าของคุณ
+            </h3>
+            <ul id="inventoryList" class="space-y-2">
+                <% if (inventory && inventory.length > 0) { %>
+                    <% inventory.forEach(inv => { %>
+                        <li class="flex justify-between items-center bg-gray-800 p-2 rounded border border-gray-700 text-sm">
+                            <span><%= inv.name %></span>
+                            <span class="bg-gray-700 px-2 rounded">x <%= inv.quantity %></span>
+                        </li>
+                    <% }) %>
+                <% } else { %>
+                    <li class="text-gray-500 text-sm italic">กระเป๋าว่างเปล่า...</li>
+                <% } %>
+            </ul>
+            <p class="text-xs text-gray-400 mt-4">* โหลดหน้าเว็บใหม่เพื่อดูของในกระเป๋าล่าสุด</p>
+        </div>
+
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        async function buyItem(itemId, price) {
+            const currentGold = parseInt(document.getElementById('playerGold').innerText);
+
+            if (currentGold < price) {
+                alert('คุณมี Gold ไม่พอซื้อไอเทมนี้!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/shop/buy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ item_id: itemId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // อัปเดตเงินในหน้าจอทันที
+                    document.getElementById('playerGold').innerText = data.newGold;
+                    
+                    // แจ้งเตือนแบบง่ายๆ (คุณสามารถเปลี่ยนเป็น SweetAlert ได้ถ้ามี)
+                    alert(data.message);
+                    
+                    // รีโหลดหน้าเพื่ออัปเดตรายการในกระเป๋า (หรือจะเขียน JS เพิ่ม UI ฝั่งขวาก็ได้ แต่รีโหลดชัวร์สุดครับ)
+                    window.location.reload(); 
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('ระบบขัดข้อง ไม่สามารถซื้อไอเทมได้');
+            }
+        }
+    </script>
+</body>
+</html>
