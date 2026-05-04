@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* บังคับโหลดฟอนต์อังกฤษโบราณ */
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        /* ── แอนิเมชันลูกเต๋าแบบ 3D ── */
+        @keyframes tumbleDice3D {
+            0% { transform: perspective(500px) rotate3d(1, 1, 1, 0deg) scale(1); }
+            20% { transform: perspective(500px) rotate3d(1, 2, 0, 90deg) scale(1.1) translateY(-15px); }
+            40% { transform: perspective(500px) rotate3d(0, 1, 2, 180deg) scale(0.9) translateY(5px); }
+            60% { transform: perspective(500px) rotate3d(2, 0, 1, 270deg) scale(1.15) translateY(-20px); }
+            80% { transform: perspective(500px) rotate3d(1, 2, -1, 315deg) scale(0.95) translateY(0); }
+            100% { transform: perspective(500px) rotate3d(1, 1, 1, 360deg) scale(1); }
+        }
+        
+        .rolling { 
+            animation: tumbleDice3D 0.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+            display: inline-block;
+            color: #a14646 !important; /* เปลี่ยนเป็นสีเลือดตอนทอย */
+            text-shadow: 0 0 20px rgba(161, 70, 70, 0.8);
+        }
+
+        /* ── มินิแมพ (Mini Map Path) ── */
+        .map-node {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .node-passed {
+            background-color: #2a2530;
+            color: #5a5066;
+            border: 2px solid #4a4056;
+        }
+        
+        .node-current {
+            background: linear-gradient(135deg, #c8a84b 0%, #8a6a2b 100%);
+            color: #000;
+            border: 2px solid #e6c46a;
+            box-shadow: 0 0 15px #c8a84b, 0 0 30px rgba(200, 168, 75, 0.4);
+            transform: scale(1.2);
+            animation: pulse-node 2s infinite;
+        }
+
+        .node-future {
+            background-color: #0a080f;
+            color: #3a3242;
+            border: 2px dashed #3a3242;
+        }
+
+        .node-boss {
+            background-color: #1a0f0f;
+            color: #a14646;
+            border: 2px solid #a14646;
+            transform: scale(1.3);
+            box-shadow: inset 0 0 10px #a14646;
+        }
+
+        @keyframes pulse-node {
+            0% { box-shadow: 0 0 10px #c8a84b; }
+            50% { box-shadow: 0 0 25px #e6c46a, 0 0 10px #ffffff; }
+            100% { box-shadow: 0 0 10px #c8a84b; }
+        }
+
+        .path-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 4px;
+            z-index: 0;
+            border-radius: 2px;
+        }
+
+        /* ── ปุ่มสไตล์ Souls ── */
+        .souls-btn {
+            background: linear-gradient(180deg, rgba(20, 15, 25, 0.8) 0%, rgba(10, 8, 15, 0.9) 100%);
+            border: 1px solid #4a4056;
+            color: #c8a84b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+        .souls-btn:hover:not(:disabled) {
+            border-color: #c8a84b;
+            box-shadow: 0 0 15px rgba(200, 168, 75, 0.3);
+            color: #e0d6bc;
+        }
+        .souls-btn:disabled {
+            color: #5a5066;
+            border-color: #2a2530;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative" style="background-color: #07060a; color: #8a8096;">
+    
+    <%- include('partials/header') %>
+    <%- include('partials/inventorySidebar') %>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 flex flex-col gap-6 mt-4">
+        
+        <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+            <div>
+                <h2 class="text-3xl font-bold" style="color: #c8a84b; font-family: 'UnifrakturMaguntia', serif; letter-spacing: 0.05em;">
+                    <i class="fa-solid fa-compass mr-2" style="color: #5a5066;"></i> <%= location.name %>
+                </h2>
+                <p class="text-sm text-gray-500 mt-1 italic"><%= location.description || 'ดินแดนที่เต็มไปด้วยหมอกและภยันตราย...' %></p>
+            </div>
+            <button onclick="toggleSidebar()" class="souls-btn px-6 py-2 rounded text-sm font-bold shadow-lg">
+                <i class="fa-solid fa-backpack mr-2"></i> สัมภาระ
+            </button>
+        </div>
+
+        <div class="bg-black/40 border border-gray-800 rounded-lg p-6 shadow-2xl relative overflow-hidden">
+            <h3 class="text-sm uppercase tracking-widest text-gray-500 mb-6 text-center">Path of Destiny</h3>
+            
+            <div class="relative flex justify-between items-center w-full max-w-3xl mx-auto px-4 py-2">
+                <div class="path-line w-full bg-gray-900"></div>
+                
+                <% 
+                   const stageInterval = 5; 
+                   const currentDisplay = (player.current_stage % stageInterval === 0) ? stageInterval : (player.current_stage % stageInterval);
+                %>
+                
+                <div class="path-line" style="background: linear-gradient(90deg, #8a6a2b 0%, #c8a84b 100%); width: <%= ((currentDisplay - 1) / (stageInterval - 1)) * 100 %>%; box-shadow: 0 0 10px #c8a84b;"></div>
+
+                <% for(let i = 1; i <= stageInterval; i++) { %>
+                    <div class="flex flex-col items-center z-10 gap-2">
+                        <% if (i < currentDisplay) { %>
+                            <div class="map-node node-passed"><i class="fa-solid fa-check text-xs"></i></div>
+                        <% } else if (i === currentDisplay) { %>
+                            <div class="map-node node-current"><i class="fa-solid fa-location-crosshairs"></i></div>
+                        <% } else if (i === stageInterval) { %>
+                            <div class="map-node node-boss"><i class="fa-solid fa-skull"></i></div>
+                        <% } else { %>
+                            <div class="map-node node-future"><%= i %></div>
+                        <% } %>
+                        <span class="text-xs" style="color: <%= i === currentDisplay ? '#c8a84b' : '#5a5066' %>;">
+                            <%= i === stageInterval ? 'BOSS' : `Stage ${player.current_stage - currentDisplay + i}` %>
+                        </span>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+            
+            <div class="bg-black/40 border border-gray-800 rounded-lg p-6 flex flex-col items-center shadow-2xl relative">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-red-900/10 pointer-events-none rounded-lg"></div>
+                
+                <h3 class="text-lg text-gray-400 mb-8 text-center uppercase tracking-wider">Cast Your Fate</h3>
+                
+                <div class="w-40 h-40 bg-gray-900/80 border border-gray-700 rounded-full flex items-center justify-center mb-8 shadow-inner relative" style="box-shadow: inset 0 0 30px rgba(0,0,0,1);">
+                    <span id="mapDiceDisplay" class="text-7xl font-bold" style="color: #8a8096;">
+                        <i id="mapDiceIcon" class="fa-solid fa-dice-d20 drop-shadow-2xl transition-all duration-300"></i>
+                    </span>
+                </div>
+
+                <button id="rollDiceBtn" class="souls-btn w-full py-4 px-4 rounded text-lg font-bold shadow-[0_0_15px_rgba(0,0,0,0.8)] relative z-10">
+                    <i class="fa-solid fa-hand-holding-magic mr-2"></i> ทอยลูกเต๋า (Roll)
+                </button>
+            </div>
+
+            <div class="col-span-1 md:col-span-2 bg-black/40 border border-gray-800 rounded-lg p-0 flex flex-col shadow-2xl overflow-hidden">
+                <div class="bg-gray-900/80 border-b border-gray-800 p-3 px-6 flex justify-between items-center">
+                    <h3 class="text-sm uppercase tracking-widest text-gray-500">
+                        <i class="fa-solid fa-scroll mr-2"></i> บันทึกเหตุการณ์
+                    </h3>
+                    <span class="text-xs text-gray-600">Stage <%= player.current_stage %></span>
+                </div>
+
+                <div id="gameLog" class="h-48 overflow-y-auto p-4 space-y-2 text-sm font-light leading-relaxed scrollbar-thin scrollbar-thumb-gray-800">
+                    <div class="text-gray-500 italic">การเดินทางเริ่มต้นขึ้น...</div>
+                </div>
+                
+                <div id="mapLog" class="flex-grow p-6 text-sm h-64 md:h-auto overflow-y-auto space-y-3 font-mono" style="color: #a097a8;">
+                    <div class="pb-3 border-b border-gray-800/50">
+                        <span style="color: #c8a84b;">[ระบบ]</span> ก้าวเข้าสู่ <%= location.name %>... ความมืดมิดรอคอยคุณอยู่
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+    <%- include('partials/notification') %>
+
+    <script>
+
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('gameLog');
+            const newLog = document.createElement('div');
+            
+            // กำหนดสีตามประเภทเหตุการณ์
+            const colors = {
+                info: 'text-gray-400',
+                damage: 'text-red-500 font-bold',
+                heal: 'text-green-500',
+                system: 'text-yellow-600 italic'
+            };
+
+            newLog.className = `${colors[type]} animate-in fade-in duration-500`;
+            newLog.innerHTML = `> ${message}`;
+            
+            logContainer.appendChild(newLog);
+
+            // Auto-scroll ไปล่างสุดเสมอ
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        const rollDiceBtn = document.getElementById('rollDiceBtn');
+        const mapDiceDisplay = document.getElementById('mapDiceDisplay');
+        const mapDiceIcon = document.getElementById('mapDiceIcon');
+        const mapLog = document.getElementById('mapLog');
+
+        function addLog(message) {
+            const time = new Date().toLocaleTimeString('th-TH', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            mapLog.innerHTML += `<div class="pb-3 border-b border-gray-800/50 animate-fade-in-up"><span class="text-gray-600 mr-2">[${time}]</span> ${message}</div>`;
+            mapLog.scrollTop = mapLog.scrollHeight; 
+        }
+
+
+        function unlockDiceButton() {
+            rollDiceBtn.disabled = false;
+            rollDiceBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        rollDiceBtn.addEventListener('click', () => {
+            rollDiceBtn.disabled = true;
+            mapDiceIcon.classList.add('rolling');
+            
+            // สุ่มเลขจำลองให้ลุ้นก่อน
+            let rollInterval = setInterval(() => {
+                const tempRoll = Math.floor(Math.random() * 20) + 1;
+                // แทรกเลขลงในไอคอนขณะกลิ้ง
+                // (ถ้าอยากให้เลขเปลี่ยนรัวๆ สามารถใส่แทนไอคอนได้ แต่ใช้ไอคอนกลิ้งจะสวยกว่าในเคสนี้)
+            }, 100);
+
+            const rollResult = Math.floor(Math.random() * 20) + 1;
+
+            // เสียงทอยเต๋า (ถ้ามีไฟล์เสียงสามารถ uncomment ได้)
+            // new Audio('/sounds/dice-roll.mp3').play();
+
+            setTimeout(() => {
+                clearInterval(rollInterval);
+                mapDiceIcon.classList.remove('rolling');
+                
+                // เอฟเฟกต์โชว์ตัวเลข
+                let colorClass = rollResult >= 15 ? 'text-green-400' : (rollResult <= 5 ? 'text-red-500' : 'text-yellow-400');
+                
+                mapDiceDisplay.innerHTML = `
+                    <span class="relative inline-block ${colorClass} font-bold animate-bounce text-8xl" style="text-shadow: 0 0 30px currentColor;">
+                        ${rollResult}
+                    </span>`;
+
+                fetch('/map/explore', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roll: rollResult })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        addLog(`<span style="color: #a14646;">[ลางร้าย] ${data.error}</span>`);
+                        unlockDiceButton();
+                        if (data.redirect) setTimeout(() => window.location.href = data.redirect, 1500);
+                        return;
+                    }
+
+                    // แยกแยะสีของ Log ตามประเภท
+                    if (data.type === 'combat') {
+                        addLog(`<span style="color: #a14646; font-weight:bold;">[ต่อสู้!] รังสีอำมหิตพุ่งเป้ามาที่คุณ... กำลังเข้าสู่ฉากต่อสู้</span>`);
+                        setTimeout(() => window.location.href = data.redirect, 1500);
+                    } 
+                    else if (data.type === 'boss') {
+                        addLog(`<span style="color: #ff0000; font-weight:bold; font-size:1.1rem;">[BOSS] ${data.message}</span>`);
+                        setTimeout(() => window.location.href = data.redirect, 2000);
+                    }
+                    else if (data.type === 'trap') {
+                        addLog(`<span style="color: #d46a6a;">[กับดัก] ทอยได้ ${rollResult} : ${data.message} <br><small style="color: #8a8096;">${data.details || ''}</small></span>`);
+                        unlockDiceButton();
+                    } 
+                    else if (data.type === 'treasure') {
+                        addLog(`<span style="color: #e6c46a; font-weight:bold;">[สมบัติ] ทอยได้ ${rollResult} : ${data.message} <br><small style="color: #8a8096;">${data.details || ''}</small></span>`);
+                        unlockDiceButton(); 
+                    }
+                    else if (data.type === 'npc' || data.type === 'event') {
+                        addLog(`<span style="color: #8da1b9;">[เหตุการณ์] ทอยได้ ${rollResult} : ${data.message} <br><small style="color: #8a8096;">${data.details || ''}</small></span>`);
+                        unlockDiceButton(); 
+                    }
+                    else if (data.type === 'shop') {
+                        addLog(`<span style="color: #8da1b9;">[พ่อค้าเร่ร่อน] ${data.message}</span>`);
+                        setTimeout(() => window.location.href = data.redirect, 1500);
+                    }
+                    else if (data.type === 'gameover') {
+                        addLog(`<span style="color: #5a5066; font-weight:bold;">[YOU DIED] ${data.message}</span>`);
+                        setTimeout(() => window.location.href = data.redirect, 2000);
+                    }
+                    else {
+                        addLog(`<span style="color: #5a5066;">ความเงียบงัน... ไม่มีอะไรเกิดขึ้นที่นี่</span>`);
+                        unlockDiceButton();
+                    }
+                    
+                    // รีเฟรชหน้าต่างเพื่อให้ Mini-map อัปเดตตำแหน่ง ถ้าไม่ใช่เหตุการณ์ย้ายหน้าเว็บ
+                    if (['trap', 'treasure', 'npc', 'event', 'empty'].includes(data.type)) {
+                        setTimeout(() => window.location.reload(), 2000);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    addLog(`<span style="color: #a14646;">มิติเวลาบิดเบี้ยว (Error) โปรดลองทอยอีกครั้ง</span>`);
+                    
+                    // ป้องกันปุ่มค้าง ดึงลูกเต๋ากลับมา
+                    setTimeout(() => {
+                        mapDiceDisplay.innerHTML = `<i id="mapDiceIcon" class="fa-solid fa-dice-d20 drop-shadow-2xl transition-all duration-300"></i>`;
+                        unlockDiceButton();
+                    }, 2000);
+                });
+            }, 600); // ระยะเวลาทอยลูกเต๋า 0.6 วินาที
+        });
+    </script>
+</body>
+</html>

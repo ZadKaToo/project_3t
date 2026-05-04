@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* บังคับโหลดฟอนต์อังกฤษโบราณ */
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        /* ── SOULS-LIKE THEME OVERRIDES ── */
+        .souls-title {
+            font-family: 'UnifrakturMaguntia', serif !important;
+            color: #c8a84b !important;
+            letter-spacing: 0.15em !important;
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 1), 0 0 15px rgba(200, 168, 75, 0.4) !important;
+            font-weight: normal !important;
+            text-align: center !important;
+        }
+
+        .souls-subtitle {
+            font-family: var(--font-title), serif !important;
+            color: #8a8096 !important;
+            letter-spacing: 0.1em !important;
+            text-transform: uppercase !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* กล่อง Save Slot */
+        .souls-slot {
+            background: linear-gradient(180deg, rgba(20, 15, 25, 0.4) 0%, rgba(10, 8, 15, 0.6) 100%) !important;
+            border: 1px solid #2a2530 !important;
+            transition: all 0.4s ease !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.5) !important;
+            position: relative;
+        }
+        
+        .souls-slot:hover {
+            border-color: #c8a84b !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(200, 168, 75, 0.15) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* กล่อง Slot ที่ว่างเปล่า */
+        .souls-slot-empty {
+            background: transparent !important;
+            border: 1px dashed #3a3242 !important;
+            box-shadow: none !important;
+        }
+        .souls-slot-empty:hover {
+            border-color: #8a8096 !important;
+        }
+
+        /* ข้อมูลตัวละคร (Stats) */
+        .souls-stat-text {
+            font-family: 'Courier New', monospace !important;
+            font-size: 0.9rem !important;
+            color: #b0a9ba !important;
+            letter-spacing: 0.05em !important;
+        }
+        .stat-hp { color: #a14646 !important; } /* เลือดสีแดงหม่น */
+        .stat-gold { color: #c8a84b !important; } /* ทอง */
+
+        /* ปุ่มกด Action */
+        .souls-btn {
+            background: transparent !important;
+            border: none !important;
+            font-family: 'UnifrakturMaguntia', var(--font-title), serif !important;
+            font-size: 1.1rem !important;
+            letter-spacing: 0.1em !important;
+            cursor: pointer !important;
+            position: relative !important;
+            text-shadow: 0 2px 10px rgba(0,0,0,1) !important;
+            transition: color 0.3s ease, transform 0.3s ease !important;
+            padding: 0.5rem 0 !important;
+        }
+        .souls-btn::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: 2px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 1px !important;
+            background: linear-gradient(90deg, transparent, currentColor, transparent) !important;
+            transition: width 0.3s ease, opacity 0.3s ease !important;
+            opacity: 0 !important;
+        }
+        .souls-btn:hover {
+            transform: scale(1.05) !important;
+            text-shadow: 0 0 15px currentColor !important;
+        }
+        .souls-btn:hover::after {
+            width: 100% !important;
+            opacity: 1 !important;
+        }
+
+        /* สีเฉพาะของแต่ละปุ่ม */
+        .btn-load { color: #e6c46a !important; }
+        .btn-save { color: #8a8096 !important; }
+        .btn-delete { color: #964b4b !important; }
+
+        /* ตารางประวัติ */
+        .souls-table-wrapper {
+            background: linear-gradient(180deg, rgba(15, 12, 20, 0.5) 0%, rgba(5, 4, 8, 0.8) 100%) !important;
+            border: 1px solid #2a2530 !important;
+        }
+        .souls-table th {
+            border-bottom: 1px solid #4a4056 !important;
+            color: #c8a84b !important;
+            font-family: 'UnifrakturMaguntia', serif !important;
+            letter-spacing: 0.1em !important;
+            font-weight: normal !important;
+            font-size: 1.1rem !important;
+        }
+        .souls-table td {
+            border-bottom: 1px solid #1a1622 !important;
+            color: #8a8096 !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden" style="background-color: #07060a;">
+    
+    <%- include('partials/header', { title: 'Chronicles', player: player }) %>
+    <%- include('partials/inventorySidebar') %>
+
+    <main class="flex-grow flex flex-col items-center justify-start p-6 z-10 relative">
+        <div class="w-full max-w-4xl space-y-10 mt-8">
+            
+            <div class="text-center animate-fade-in-up">
+                <div class="souls-subtitle mb-2">Chronicles & Memories</div>
+                <h2 class="souls-title text-4xl md:text-5xl">
+                    บันทึกแห่งการเดินทาง
+                </h2>
+            </div>
+
+            <div class="space-y-6">
+                <% (typeof saveSlots !== 'undefined' ? saveSlots : [null, null, null]).forEach((slot, i) => { %>
+                    
+                    <% if (slot) { %>
+                        <div class="souls-slot p-6 rounded-sm flex flex-col md:flex-row items-center gap-6">
+                            
+                            <div class="text-6xl flex-shrink-0" style="text-shadow: 0 0 20px rgba(200, 168, 75, 0.4);">
+                                <%= slot.avatar || '🧙' %>
+                            </div>
+                            
+                            <div class="flex-1 text-center md:text-left w-full">
+                                <div class="text-2xl font-bold mb-2" style="color: #e0d6bc; font-family: var(--font-title); letter-spacing: 0.05em;">
+                                    <%= slot.username %> 
+                                    <span style="color: #c8a84b; font-size: 1rem; margin-left: 10px;">LV. <%= slot.level || 1 %></span>
+                                </div>
+                                
+                                <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-3 souls-stat-text">
+                                    <span class="stat-hp">HP <%= slot.hp %>/<%= slot.max_hp %></span>
+                                    <span style="color: #4a4056;">|</span>
+                                    <span class="stat-gold"><%= slot.gold %> G</span>
+                                    <span style="color: #4a4056;">|</span>
+                                    <span>📍 <%= slot.current_location || 'Unknown Realm' %></span>
+                                </div>
+                                
+                                <div class="text-xs" style="color: #5a5066;">
+                                    Last Imprint: <%= slot.saved_at ? new Date(slot.saved_at).toLocaleString('th-TH') : '—' %>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-row md:flex-col gap-4 w-full md:w-auto mt-4 md:mt-0 justify-center">
+                                <form action="/game/load" method="POST" class="m-0">
+                                    <input type="hidden" name="slot" value="<%= i + 1 %>">
+                                    <button type="submit" class="souls-btn btn-load w-full">Awaken (โหลด)</button>
+                                </form>
+                                <form action="/game/save" method="POST" class="m-0">
+                                    <input type="hidden" name="slot" value="<%= i + 1 %>">
+                                    <button type="submit" class="souls-btn btn-save w-full">Overwrite (ทับ)</button>
+                                </form>
+                                <form action="/game/delete-save" method="POST" class="m-0" onsubmit="return confirm('ทำลายความทรงจำ Slot <%= i+1 %> ทิ้งอย่างถาวร จริงหรือ?')">
+                                    <input type="hidden" name="slot" value="<%= i + 1 %>">
+                                    <button type="submit" class="souls-btn btn-delete w-full">Shatter (ลบ)</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    <% } else { %>
+                        <div class="souls-slot-empty p-8 rounded-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                            <span style="color: #4a4056; font-family: var(--font-title); letter-spacing: 0.1em;">
+                                — Slot <%= i + 1 %> : Forgotten Record (ว่างเปล่า) —
+                            </span>
+                            <form action="/game/save" method="POST" class="m-0">
+                                <input type="hidden" name="slot" value="<%= i + 1 %>">
+                                <button type="submit" class="souls-btn btn-save text-lg px-4">Imprint Memory (บันทึก)</button>
+                            </form>
+                        </div>
+                    <% } %>
+                    
+                <% }) %>
+            </div>
+
+            <% if (typeof history !== 'undefined' && history && history.length > 0) { %>
+                <div class="souls-table-wrapper rounded-sm overflow-hidden mt-12 p-2">
+                    <div class="px-6 py-4 border-b border-gray-800 text-center">
+                        <h3 class="text-xl" style="color: #c8a84b; font-family: 'UnifrakturMaguntia', serif; letter-spacing: 0.1em;">Past Echoes (ประวัติการเล่น)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse souls-table">
+                            <thead>
+                                <tr>
+                                    <th class="p-4 text-center">Date</th>
+                                    <th class="p-4 text-center">Score</th>
+                                    <th class="p-4 text-center">Correct</th>
+                                    <th class="p-4 text-center">Wrong</th>
+                                    <th class="p-4 text-center">Fate</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm font-mono">
+                                <% history.slice(0, 10).forEach(h => { %>
+                                <tr class="hover:bg-white/5 transition duration-300">
+                                    <td class="p-4 text-center"><%= new Date(h.played_at).toLocaleDateString('th-TH') %></td>
+                                    <td class="p-4 text-center" style="color: #c8a84b;"><%= h.score || 0 %></td>
+                                    <td class="p-4 text-center" style="color: #8a9680;"><%= h.correct_answers || 0 %></td>
+                                    <td class="p-4 text-center" style="color: #964b4b;"><%= h.wrong_answers || 0 %></td>
+                                    <td class="p-4 text-center">
+                                        <span style="color: <%= h.result === 'victory' ? '#8a9680' : '#964b4b' %>;">
+                                            <%= h.result === 'victory' ? 'Victory' : 'Defeat' %>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <% } %>
+
+            <div class="text-center mt-12 pb-12">
+                <a href="/" class="souls-btn" style="color: #8a8096; font-size: 1.5rem;">
+                    Return to the Fire (กลับหน้าหลัก)
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('inventorySidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('translate-x-full');
+            }
+        }
+    </script>
+</body>
+</html>

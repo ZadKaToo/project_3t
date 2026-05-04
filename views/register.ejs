@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        /* แอนิเมชันสะเก็ดไฟ (Cinders) */
+        @keyframes floatCinder {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) translateX(20px) rotate(360deg); opacity: 0; }
+        }
+
+        .cinder {
+            position: absolute;
+            background: #ff4500;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(1px);
+            box-shadow: 0 0 5px #ff4500;
+        }
+
+        body {
+            background: radial-gradient(circle, #1a161f 0%, #050505 100%);
+            overflow: hidden;
+            color: #8a8096;
+        }
+
+        .souls-panel {
+            background: rgba(10, 10, 12, 0.95);
+            border: 1px solid #2d2d2d;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+        }
+
+        /* ตกแต่งกรอบมุมเหล็กโบราณ */
+        .souls-panel::before, .souls-panel::after {
+            content: "";
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #5c503d;
+        }
+        .souls-panel::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+        .souls-panel::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+
+        .souls-input {
+            background: rgba(0, 0, 0, 0.8) !important;
+            border: 1px solid #3d3d3d !important;
+            color: #d1d1d1 !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .souls-input:focus {
+            border-color: #8a7a5f !important;
+            box-shadow: 0 0 15px rgba(138, 122, 95, 0.15);
+            transform: scale(1.01);
+        }
+
+        .btn-souls {
+            background: linear-gradient(180deg, #1f1f1f 0%, #0d0d0d 100%);
+            border: 1px solid #4a4030;
+            color: #8a7a5f;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            transition: all 0.5s ease;
+        }
+
+        .btn-souls:hover {
+            border-color: #c8a84b;
+            color: #f0e6d2;
+            background: #1a1a1a;
+            box-shadow: 0 0 20px rgba(200, 168, 75, 0.2);
+        }
+
+        .souls-title {
+            font-family: 'UnifrakturMaguntia', serif;
+            letter-spacing: 3px;
+            color: #f0f0f0;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+        }
+
+        .souls-link {
+            color: #4a4a4a;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+        }
+
+        .souls-link:hover {
+            color: #8a7a5f;
+            letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <script>
+        for (let i = 0; i < 25; i++) {
+            let cinder = document.createElement('div');
+            cinder.className = 'cinder';
+            cinder.style.left = Math.random() * 100 + 'vw';
+            cinder.style.top = Math.random() * 100 + 'vh';
+            cinder.style.animation = `floatCinder ${6 + Math.random() * 12}s linear infinite`;
+            cinder.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(cinder);
+        }
+    </script>
+
+    <div class="souls-panel p-10 rounded-sm max-w-md w-full z-10">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold souls-title mb-2">New Covenant</h1>
+            <div class="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#5c503d] to-transparent mx-auto"></div>
+            <p class="text-[9px] text-gray-600 tracking-[0.5em] uppercase mt-4">ลงทะเบียน</p>
+        </div>
+        
+        <form action="/register" method="POST" class="space-y-5">
+            <div>
+                <label class="block text-[#5c5c5c] mb-1.5 text-[10px] uppercase tracking-widest">USERNAME</label>
+                <input type="text" name="username" class="souls-input w-full rounded-sm px-4 py-3 focus:outline-none" placeholder="..." required>
+            </div>
+            
+            <div>
+                <label class="block text-[#5c5c5c] mb-1.5 text-[10px] uppercase tracking-widest">Password</label>
+                <input type="password" name="password" class="souls-input w-full rounded-sm px-4 py-3 focus:outline-none" placeholder="••••••••" required>
+            </div>
+
+            <div>
+                <label class="block text-[#5c5c5c] mb-1.5 text-[10px] uppercase tracking-widest">CONFIRM PASSWORD</label>
+                <input type="password" name="confirm_password" class="souls-input w-full rounded-sm px-4 py-3 focus:outline-none" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-souls w-full py-4 rounded-sm mt-4 font-bold flex justify-center items-center gap-3 group">
+                เริ่มต้นชะตากรรม <i class="fa-solid fa-scroll opacity-50 group-hover:opacity-100 transition-opacity"></i>
+            </button>
+
+            <div class="text-center mt-6">
+                <a href="/login" class="souls-link">
+                    มีบัญชีอยู่แล้ว? <span class="opacity-50">|</span> เข้าสู่ระบบ
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="fixed bottom-8 w-full text-center pointer-events-none">
+        <p class="text-[8px] text-gray-700 tracking-[1em] uppercase font-light">Prepare to Die Edition</p>
+    </div>
+
+</body>
+</html>

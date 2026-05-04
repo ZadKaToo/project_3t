@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* บังคับโหลดฟอนต์อังกฤษโบราณ */
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        /* ใส่ !important เพื่อทับ Tailwind ทั้งหมด */
+        .souls-title {
+            font-family: 'UnifrakturMaguntia', serif !important;
+            font-size: 3.5rem !important;
+            color: #c8a84b !important;
+            letter-spacing: 0.1em !important;
+            margin-bottom: 4rem !important;
+            text-align: center !important;
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 1), 0 0 15px rgba(200, 168, 75, 0.4) !important;
+            font-weight: normal !important;
+        }
+
+        .souls-btn-group {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 2rem !important;
+            align-items: center !important;
+        }
+
+        .souls-btn {
+            font-family: 'UnifrakturMaguntia', serif !important;
+            font-size: 1.5rem !important;
+            color: #8a8096 !important; /* สีเทาหม่น */
+            background: transparent !important;
+            border: none !important;
+            padding: 0.5rem 1rem !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            position: relative !important;
+            letter-spacing: 0.1em !important;
+            text-shadow: 0 5px 15px rgba(0,0,0,1) !important;
+            transition: color 0.3s ease, transform 0.3s ease !important;
+            box-shadow: none !important; /* ลบเงากล่องของ Tailwind */
+        }
+
+        /* เอฟเฟกต์เส้นแสงด้านล่าง */
+        .souls-btn::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: -5px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 2px !important;
+            background: linear-gradient(90deg, transparent, #e6c46a, transparent) !important;
+            box-shadow: 0 0 10px #e6c46a !important;
+            transition: width 0.3s ease, opacity 0.3s ease !important;
+            opacity: 0 !important;
+        }
+
+        .souls-btn:hover {
+            color: #e0d6bc !important; /* สว่างขึ้นตอนชี้ */
+            transform: scale(1.05) !important;
+        }
+
+        .souls-btn:hover::after {
+            width: 100% !important;
+            opacity: 1 !important;
+        }
+
+        .souls-btn-start {
+            color: #c8a84b !important;
+            font-size: 1.8rem !important;
+        }
+        .souls-btn-start:hover {
+            color: #e6c46a !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden" style="background-color: #07060a;">
+    <%- include('partials/header') %>
+    <%- include('partials/inventorySidebar') %>
+
+    <main class="flex-grow flex items-center justify-center p-6 z-10 relative">
+        <div class="w-full flex flex-col items-center">
+            
+            <h1 class="souls-title">Welcome, Adventurer</h1>
+            
+            <div class="souls-btn-group">
+                <a href="/start-game" class="souls-btn souls-btn-start">Start Journey</a>
+                <a href="/load-save" class="souls-btn">Load Game</a>
+                <button onclick="toggleSidebar()" class="souls-btn">Inventory</button>
+                <a href="/setting" class="souls-btn">Settings</a>
+            </div>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('inventorySidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('translate-x-full');
+            }
+        }
+    </script>
+</body>
+</html>

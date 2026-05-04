@@ -1,0 +1,134 @@
+<div id="inventorySidebar" class="dnd-sidebar translate-x-full">
+
+    <%# SIDEBAR HEADER %>
+    <div class="dnd-sb__head">
+        <h3><i class="fa-solid fa-scroll"></i> กระเป๋า &amp; อุปกรณ์</h3>
+        <button onclick="toggleSidebar()" class="dnd-sb__close" title="ปิด">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <%# CLASS BANNER %>
+    <div class="dnd-sb__class">
+        <p class="dnd-sb__sublabel">อาชีพปัจจุบัน</p>
+        <h4><%= (typeof player !== 'undefined') ? player.class_name : 'Novice' %></h4>
+    </div>
+
+    <%# EQUIPMENT SLOTS %>
+    <div class="dnd-sb__equip">
+        <p class="dnd-sb__sublabel">อุปกรณ์ที่สวมใส่</p>
+        <div class="dnd-equip-grid">
+            <div class="dnd-equip-slot">
+                <i class="fa-solid fa-sword"></i>
+                <span class="dnd-equip-slot__type">อาวุธ</span>
+                <span class="dnd-equip-slot__name">
+                    <%= (typeof equippedWeaponName !== 'undefined' && equippedWeaponName) ? equippedWeaponName : '---' %>
+                </span>
+            </div>
+            <div class="dnd-equip-slot">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span class="dnd-equip-slot__type">เกราะ</span>
+                <span class="dnd-equip-slot__name dnd-equip-slot__name--armor">
+                    <%= (typeof equippedArmorName !== 'undefined' && equippedArmorName) ? equippedArmorName : '---' %>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <%# ITEM LIST %>
+    <div class="dnd-sb__items">
+        <% if (typeof inventory !== 'undefined' && inventory.length > 0) { %>
+            <% inventory.forEach(item => {
+                const isEquipped = (typeof player !== 'undefined') &&
+                    (item.item_id == player.equipped_weapon || item.item_id == player.equipped_armor);
+
+                let iconType = 'default';
+                let iconClass = 'fa-box';
+                if (item.type === 'potion' || item.type === 'heal') {
+                    iconType = 'heal'; iconClass = 'fa-flask';
+                } else if (item.type === 'helper' || item.type === 'scroll') {
+                    iconType = 'scroll'; iconClass = 'fa-scroll';
+                } else if (item.type === 'damage' || item.type === 'weapon') {
+                    iconType = 'weapon'; iconClass = 'fa-sword';
+                } else if (item.type === 'armor') {
+                    iconType = 'armor'; iconClass = 'fa-shield-halved';
+                }
+            %>
+            <div class="dnd-item <%= isEquipped ? 'dnd-item--equipped' : '' %>">
+                <% if (isEquipped) { %>
+                    <div class="dnd-item__badge">สวมใส่</div>
+                <% } %>
+
+                <div class="dnd-item__icon dnd-item__icon--<%= iconType %>">
+                    <i class="fa-solid <%= iconClass %>"></i>
+                </div>
+
+                <div class="dnd-item__info">
+                    <h4 class="dnd-item__name <%= isEquipped ? 'dnd-item__name--equipped' : '' %>"><%= item.name %></h4>
+                    <p class="dnd-item__desc"><%= item.description %></p>
+                    
+                    <%# ป้องกันบั๊ก: เช็คว่ามีค่า effect_value และต้องเป็นตัวเลขที่มากกว่า 0 %>
+                    <% if (item.effect_value !== null && item.effect_value !== undefined && !isNaN(item.effect_value) && Number(item.effect_value) > 0) { %>
+                        <div class="dnd-item__stats mt-1 text-xs font-semibold">
+                            <% if (item.type === 'damage' || item.type === 'weapon') { %>
+                                <span class="text-red-400"><i class="fa-solid fa-sword"></i> พลังโจมตี +<%= item.effect_value %></span>
+                            <% } else if (item.type === 'armor') { %>
+                                <span class="text-blue-400"><i class="fa-solid fa-shield-halved"></i> พลังป้องกัน +<%= item.effect_value %></span>
+                            <% } else if (item.type === 'heal' || item.type === 'potion') { %>
+                                <span class="text-green-400"><i class="fa-solid fa-heart"></i> ฟื้นฟู HP +<%= item.effect_value %></span>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="dnd-item__actions">
+                    <span class="dnd-item__qty">x<%= item.quantity %></span>
+                    
+                    <% if (item.type === 'heal' || item.type === 'potion') { %>
+                        <button onclick="manageItem('<%= item.item_id %>', 'use')" class="dnd-item-btn dnd-item-btn--use">
+                            ใช้ (+<%= item.effect_value %>)
+                        </button>
+                    <% } %>
+                    
+                    <% if (item.type === 'damage' || item.type === 'weapon' || item.type === 'armor') { %>
+                        <button onclick="manageItem('<%= item.item_id %>', '<%= isEquipped ? 'unequip' : 'equip' %>')"
+                                class="dnd-item-btn <%= isEquipped ? 'dnd-item-btn--unequip' : 'dnd-item-btn--equip' %>">
+                            <%= isEquipped ? 'ถอดออก' : 'สวมใส่' %>
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+            <% }); %>
+        <% } else { %>
+            <div class="dnd-sb__empty">
+                <i class="fa-solid fa-box-open"></i>
+                <p>กระเป๋าว่างเปล่า</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    async function manageItem(itemId, action) {
+        if (action === 'use') {
+            if (!confirm('ต้องการใช้งานไอเทมนี้ใช่หรือไม่?')) return;
+        }
+        try {
+            const response = await fetch('/inventory/manage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_id: itemId, action: action })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                window.location.reload();
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+        }
+    }
+</script>

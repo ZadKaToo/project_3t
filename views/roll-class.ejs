@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* บังคับโหลดฟอนต์อังกฤษโบราณ */
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        body {
+            background-color: #07060a;
+            color: #8a8096;
+            overflow-x: hidden;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fate-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .souls-title {
+            font-family: 'UnifrakturMaguntia', var(--font-title), serif !important;
+            font-size: 3rem !important;
+            color: #c8a84b !important;
+            letter-spacing: 0.1em !important;
+            margin-bottom: 1rem !important;
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 1), 0 0 15px rgba(200, 168, 75, 0.4) !important;
+            font-weight: normal !important;
+        }
+
+        .souls-desc {
+            font-family: var(--font-title), serif;
+            font-size: 1.1rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 4rem;
+            color: #5a5066;
+        }
+
+        /* ปุ่มสไตล์ Souls (ไม่มีกรอบ เน้นแสงเงา) */
+        .souls-btn {
+            background: transparent !important;
+            border: none !important;
+            font-family: 'UnifrakturMaguntia', var(--font-title), serif !important;
+            font-size: 1.8rem !important;
+            color: #8a8096 !important;
+            padding: 1rem 2rem !important;
+            cursor: pointer !important;
+            position: relative !important;
+            letter-spacing: 0.1em !important;
+            text-shadow: 0 5px 15px rgba(0,0,0,1) !important;
+            transition: color 0.4s ease, transform 0.4s ease !important;
+            outline: none;
+        }
+
+        .souls-btn::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: 5px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 1px !important;
+            background: linear-gradient(90deg, transparent, #e6c46a, transparent) !important;
+            box-shadow: 0 0 10px #e6c46a !important;
+            transition: width 0.4s ease, opacity 0.4s ease !important;
+            opacity: 0 !important;
+        }
+
+        .souls-btn:hover {
+            color: #e0d6bc !important;
+            transform: scale(1.05) !important;
+        }
+
+        .souls-btn:hover::after {
+            width: 80% !important;
+            opacity: 1 !important;
+        }
+
+        /* แอนิเมชันตอนรอโหลด (สีแดงหม่นแบบชีพจร) */
+        .loading-text {
+            display: none;
+            font-family: 'UnifrakturMaguntia', var(--font-title), serif;
+            font-size: 1.5rem;
+            color: #a14646; 
+            letter-spacing: 0.15em;
+            animation: pulse 1.5s infinite;
+            text-shadow: 0 0 15px rgba(161, 70, 70, 0.6);
+            margin-top: 1rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; text-shadow: 0 0 25px rgba(161, 70, 70, 0.9); }
+            100% { opacity: 0.4; }
+        }
+
+        /* ข้อความผลลัพธ์อาชีพ */
+        #result {
+            font-family: 'UnifrakturMaguntia', var(--font-title), serif;
+            font-size: 2.8rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            color: #e6c46a;
+            text-shadow: 0 0 25px rgba(230, 196, 106, 0.6), 0 5px 15px rgba(0,0,0,1);
+            opacity: 0;
+            display: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #result.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* ปุ่มเข้าสู่เกม (โผล่มาทีหลัง) */
+        #startGameBtn {
+            display: none;
+            color: #c8a84b !important;
+            font-size: 1.5rem !important;
+            animation: floatUp 1s ease-out forwards;
+            opacity: 0;
+        }
+        
+        #startGameBtn::after {
+            background: linear-gradient(90deg, transparent, #c8a84b, transparent) !important;
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="fate-container">
+        <h1 class="souls-title">เต๋าแห่งชะตากรรม</h1>
+        <p class="souls-desc">จงน้อมรับชะตากรรม... สุ่มรับ 1 ใน 50 เส้นทางแห่งอาชีพ</p>
+        
+        <button id="rollButton" class="souls-btn" onclick="rollDice()">
+            Cast the Dice 
+        </button>
+        
+        <div id="loading" class="loading-text">
+            The Fates are deciding... 
+        </div>
+        
+        <div id="result"></div>
+        
+        <button id="startGameBtn" class="souls-btn" onclick="window.location.href='/map'">
+            Enter the Realm
+        </button>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        async function rollDice() {
+            // ซ่อนปุ่ม โชว์ Loading
+            document.getElementById('rollButton').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            // รีเซ็ตคลาสโชว์ผลลัพธ์
+            const resultElement = document.getElementById('result');
+            resultElement.classList.remove('show');
+            document.getElementById('startGameBtn').style.display = 'none';
+
+            try {
+                // ยิง API
+                const response = await fetch('/choose-class', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                // หน่วงเวลา 2 วินาทีให้ดูลึกลับและลุ้นระทึก
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    if (result.success) {
+                        resultElement.innerText = "“ " + result.message + " ”";
+                        resultElement.style.color = '#e6c46a'; // สีทอง
+                        resultElement.classList.add('show');
+                        
+                        // รอสักพักแล้วค่อยให้ปุ่มเข้าเกมค่อยๆ ลอยขึ้นมา
+                        setTimeout(() => {
+                            document.getElementById('startGameBtn').style.display = 'inline-block';
+                        }, 800);
+                        
+                    } else {
+                        resultElement.innerText = 'ลางร้าย: ' + result.message;
+                        resultElement.style.color = '#a14646'; // สีเลือดเวลามี Error
+                        resultElement.classList.add('show');
+                        
+                        setTimeout(() => {
+                            document.getElementById('rollButton').style.display = 'inline-block';
+                        }, 1000);
+                    }
+                }, 2000); 
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                resultElement.innerText = 'มิติพังทลาย โปรดลองใหม่อีกครั้ง';
+                resultElement.style.color = '#a14646';
+                resultElement.classList.add('show');
+                
+                setTimeout(() => {
+                    document.getElementById('rollButton').style.display = 'inline-block';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

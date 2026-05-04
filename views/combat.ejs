@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        /* ── แอนิเมชันลูกเต๋าแบบ 3D ── */
+        @keyframes tumbleDice3D {
+            0% { transform: perspective(500px) rotate3d(1, 1, 1, 0deg) scale(1); }
+            20% { transform: perspective(500px) rotate3d(1, 2, 0, 90deg) scale(1.1) translateY(-15px); }
+            40% { transform: perspective(500px) rotate3d(0, 1, 2, 180deg) scale(0.9) translateY(5px); }
+            60% { transform: perspective(500px) rotate3d(2, 0, 1, 270deg) scale(1.15) translateY(-20px); }
+            80% { transform: perspective(500px) rotate3d(1, 2, -1, 315deg) scale(0.95) translateY(0); }
+            100% { transform: perspective(500px) rotate3d(1, 1, 1, 360deg) scale(1); }
+        }
+        
+        .rolling { 
+            animation: tumbleDice3D 0.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+            display: inline-block;
+            color: #a14646 !important; 
+            text-shadow: 0 0 20px rgba(161, 70, 70, 0.8);
+        }
+
+        /* ── ปุ่มสไตล์ Souls ── */
+        .souls-action-btn {
+            background: linear-gradient(180deg, rgba(20, 15, 25, 0.8) 0%, rgba(10, 8, 15, 0.9) 100%);
+            border: 1px solid #4a4056;
+            color: #8a8096;
+            transition: all 0.3s ease;
+        }
+        .souls-action-btn:hover {
+            border-color: #c8a84b;
+            color: #e0d6bc;
+            box-shadow: 0 0 10px rgba(200, 168, 75, 0.2);
+        }
+        /* สถานะตอนถูกเลือก */
+        .souls-selected {
+            border-color: #c8a84b !important;
+            color: #c8a84b !important;
+            box-shadow: 0 0 15px rgba(200, 168, 75, 0.4) !important;
+            transform: scale(1.02);
+            background: rgba(200, 168, 75, 0.1) !important;
+        }
+
+        /* ── หลอดเลือด Boss ── */
+        .boss-hp-container {
+            width: 100%;
+            height: 8px;
+            background-color: #1a0f0f;
+            border: 1px solid #3a1c1c;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+        .boss-hp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #8b0000 0%, #ff4500 100%);
+            box-shadow: 0 0 10px #ff0000;
+            transition: width 0.5s ease-out;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative" style="background-color: #07060a; color: #8a8096;">
+    
+    <%- include('partials/header') %>
+    <%- include('partials/inventorySidebar') %>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 flex flex-col gap-6 mt-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
+            
+            <div class="bg-black/40 border border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center relative shadow-2xl">
+                <h2 class="text-4xl font-bold mb-4 text-center tracking-wider" style="color: #a14646; font-family: 'UnifrakturMaguntia', serif; text-shadow: 0 0 15px rgba(161,70,70,0.6);">
+                    <%= monster.name %>
+                </h2>
+                
+                <div class="w-56 h-56 bg-gray-900/80 border border-red-900/50 rounded-lg flex items-center justify-center text-gray-500 overflow-hidden mb-6 shadow-[0_0_30px_rgba(161,70,70,0.2)]">
+                    <% if (monster.image_url) { %>
+                        <img src="<%= monster.image_url %>" alt="<%= monster.name %>" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity">
+                    <% } else { %>
+                        <i class="fa-solid fa-skull text-7xl" style="color: #4a3030;"></i>
+                    <% } %>
+                </div>
+
+                <div class="w-full px-8">
+                    <div class="boss-hp-container">
+                        <div class="boss-hp-bar" style="width: <%= Math.max(0, (monster.hp / monster.max_hp) * 100) %>%"></div>
+                    </div>
+                    <div class="text-xs text-center mt-2 tracking-widest uppercase" style="color: #a14646;">
+                        HP <%= monster.hp %> / <%= monster.max_hp %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-black/40 border border-gray-800 rounded-lg p-6 flex flex-col shadow-2xl">
+                
+                <h3 class="text-sm uppercase tracking-widest mb-4 border-b border-gray-800 pb-2" style="color: #c8a84b;">1. เลือกการกระทำ (Action)</h3>
+                <div class="grid grid-cols-2 gap-3 mb-8">
+                    <button type="button" class="action-btn souls-action-btn p-3 rounded text-left" data-action="attack">
+                        <i class="fa-solid fa-sword mr-2 text-red-800"></i> โจมตี
+                    </button>
+                    <button type="button" class="action-btn souls-action-btn p-3 rounded text-left" data-action="defend">
+                        <i class="fa-solid fa-shield mr-2 text-blue-800"></i> ป้องกัน
+                    </button>
+                    <button type="button" onclick="toggleSidebar()" class="souls-action-btn p-3 rounded text-left">
+                        <i class="fa-solid fa-flask mr-2 text-purple-800"></i> สัมภาระ
+                    </button>
+                    <button type="button" class="action-btn souls-action-btn p-3 rounded text-left" data-action="flee">
+                        <i class="fa-solid fa-person-running mr-2 text-gray-600"></i> หนี
+                    </button>
+                </div>
+
+                <h3 class="text-sm uppercase tracking-widest mb-4 border-b border-gray-800 pb-2" style="color: #c8a84b;">2. ร่ายมนต์ปัญญา (Incantation)</h3>
+                <div class="bg-gray-900/50 p-5 rounded border border-gray-800 flex-grow shadow-inner">
+                    <p class="mb-5 text-lg text-gray-300 italic">" <%= question.question_text %> "</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button type="button" class="answer-btn souls-action-btn p-3 rounded text-left pl-4" data-answer="A">A. <%= question.option_a %></button>
+                        <button type="button" class="answer-btn souls-action-btn p-3 rounded text-left pl-4" data-answer="B">B. <%= question.option_b %></button>
+                        <button type="button" class="answer-btn souls-action-btn p-3 rounded text-left pl-4" data-answer="C">C. <%= question.option_c %></button>
+                        <button type="button" class="answer-btn souls-action-btn p-3 rounded text-left pl-4" data-answer="D">D. <%= question.option_d %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-black/40 border border-gray-800 rounded-lg p-4 flex flex-col md:flex-row gap-6 h-auto md:h-48 shadow-2xl">
+            
+            <div class="w-full md:w-1/4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-800 pb-4 md:pb-0 md:pr-6">
+                <form id="combatForm" action="/combat/execute" method="POST" class="flex flex-col items-center">
+                    <input type="hidden" name="monster_id" value="<%= monster.monster_id %>">
+                    <input type="hidden" name="action" id="inputAction" value="">
+                    <input type="hidden" name="answer" id="inputAnswer" value="">
+                    <input type="hidden" name="question_id" value="<%= question.question_id %>">
+                    
+                    <button type="button" id="diceBtn" class="text-6xl text-gray-700 font-bold mb-3 cursor-not-allowed transition-all duration-300" disabled>
+                        <i class="fa-solid fa-dice-d20 drop-shadow-xl" id="diceIcon"></i>
+                    </button>
+                    <span id="diceLabel" class="text-xs tracking-widest uppercase text-gray-600 text-center">ต้องเตรียมตัวก่อนทอยเต๋า</span>
+                </form>
+            </div>
+            
+            <div id="battleLog" class="w-full md:w-3/4 overflow-y-auto space-y-2 text-sm font-mono pr-2" style="color: #a097a8;">
+                <p class="pb-2 border-b border-gray-800/50"><span style="color: #a14646;">[ระบบ]</span> รังสีอำมหิตของ <span class="font-bold text-red-500"><%= monster.name %></span> แผ่ซ่านมาถึงคุณ!</p>
+                
+                <% if (typeof battleLogs !== 'undefined' && battleLogs.length > 0) { %>
+                    <% battleLogs.forEach(log => { %>
+                        <p class="pb-2 border-b border-gray-800/50 animate-fade-in-up"><%- log %></p>
+                    <% }) %>
+                <% } else { %>
+                    <p class="pb-2 border-b border-gray-800/50"><span style="color: #c8a84b;">[ระบบ]</span> เลือกการกระทำและคำตอบ จากนั้นอธิษฐานต่อลูกเต๋า...</p>
+                <% } %>
+            </div>
+        </div>
+
+    </main>
+
+    <%- include('partials/notification') %>
+
+    <script>
+        const battleLogBox = document.getElementById('battleLog');
+        if (battleLogBox) {
+            battleLogBox.scrollTop = battleLogBox.scrollHeight;
+        }
+
+        const actionBtns = document.querySelectorAll('.action-btn');
+        const answerBtns = document.querySelectorAll('.answer-btn');
+        const diceBtn = document.getElementById('diceBtn');
+        const diceIcon = document.getElementById('diceIcon');
+        const diceLabel = document.getElementById('diceLabel');
+        const combatForm = document.getElementById('combatForm');
+        
+        const inputAction = document.getElementById('inputAction');
+        const inputAnswer = document.getElementById('inputAnswer');
+
+        // จัดการคลิกเลือก Action
+        actionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                actionBtns.forEach(b => b.classList.remove('souls-selected'));
+                btn.classList.add('souls-selected');
+                inputAction.value = btn.dataset.action;
+                checkReadyToRoll();
+            });
+        });
+
+        // จัดการคลิกเลือก คำตอบ
+        answerBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                answerBtns.forEach(b => b.classList.remove('souls-selected'));
+                btn.classList.add('souls-selected');
+                inputAnswer.value = btn.dataset.answer;
+                checkReadyToRoll();
+            });
+        });
+
+        // เช็คว่าเลือกครบหรือยัง
+        function checkReadyToRoll() {
+            if (inputAction.value && inputAnswer.value) {
+                diceBtn.disabled = false;
+                diceBtn.classList.remove('text-gray-700', 'cursor-not-allowed');
+                diceBtn.classList.add('cursor-pointer');
+                diceIcon.style.color = '#c8a84b'; // เปลี่ยนเป็นสีทองเมื่อพร้อม
+                diceLabel.innerHTML = `<span style="color: #c8a84b;" class="animate-pulse">คลิกเพื่อชี้ชะตา!</span>`;
+            }
+        }
+
+        // จัดการการทอยเต๋าและส่งข้อมูล
+        diceBtn.addEventListener('click', () => {
+            if (!inputAction.value || !inputAnswer.value) return;
+            
+            diceBtn.disabled = true;
+            actionBtns.forEach(b => b.style.pointerEvents = 'none');
+            answerBtns.forEach(b => b.style.pointerEvents = 'none');
+            
+            diceIcon.classList.add('rolling');
+            diceLabel.innerHTML = `<span style="color: #a14646;">ชะตากรรมกำลังทำงาน...</span>`;
+
+            setTimeout(() => {
+                combatForm.submit(); 
+            }, 1200); // หน่วงเวลาให้ลูกเต๋ากลิ้ง 3D สักพักก่อน Submit
+        });
+    </script>
+</body>
+</html>

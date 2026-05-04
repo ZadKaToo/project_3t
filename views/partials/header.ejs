@@ -1,0 +1,86 @@
+<header class="dnd-header">
+    <div class="dnd-header__inner">
+
+        <a href="/" id="homeLogo" class="dnd-header__logo">
+            <i class="fa-solid fa-dragon"></i>
+            D&D Quiz RPG
+        </a>
+
+        <div class="dnd-hud">
+            <div class="dnd-hud__stat dnd-hud__stat--hp" title="พลังชีวิต">
+                <i class="fa-solid fa-heart"></i>
+                <span>HP <%= player.hp %>/<%= player.max_hp %></span>
+            </div>
+            <div class="dnd-hud__sep"></div>
+            <div class="dnd-hud__stat dnd-hud__stat--san" title="ค่าสติ">
+                <i class="fa-solid fa-brain"></i>
+                <span>Sanity <%= player.sanity %>/<%= player.max_sanity %></span>
+            </div>
+            <div class="dnd-hud__sep"></div>
+            <div class="dnd-hud__stat dnd-hud__stat--gld" title="ทอง">
+                <i class="fa-solid fa-coins"></i>
+                <span>Gold <%= player.gold %></span>
+            </div>
+        </div>
+
+        <div class="dnd-header__ctrl">
+            <span class="dnd-header__username"><%= player.username %></span>
+            <button id="inventoryBtn" onclick="toggleSidebar()" class="dnd-icon-btn" title="กระเป๋าไอเทม">
+                <i class="fa-solid fa-sack-dollar"></i>
+            </button>
+            <a href="/logout" class="dnd-icon-btn dnd-icon-btn--logout" title="ออกจากระบบ">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        </div>
+
+    </div>
+</header>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('inventorySidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('translate-x-full');
+        } else {
+            console.error("ไม่พบ Sidebar — ตรวจสอบว่าได้ include partials/inventorySidebar หรือยัง");
+        }
+    }
+
+    if (window.location.pathname.includes('/combat')) {
+        const homeLogo = document.getElementById('homeLogo');
+        if (homeLogo) {
+            homeLogo.removeAttribute('href');
+            homeLogo.classList.add('cursor-not-allowed', 'opacity-60');
+            homeLogo.onclick = (e) => e.preventDefault();
+        }
+        const inventoryBtn = document.getElementById('inventoryBtn');
+        if (inventoryBtn) {
+            inventoryBtn.removeAttribute('onclick');
+            inventoryBtn.classList.add('dnd-icon-btn--locked');
+            inventoryBtn.title = "ไม่สามารถเปิดกระเป๋าระหว่างต่อสู้ได้";
+            inventoryBtn.onclick = (e) => e.preventDefault();
+        }
+    }
+</script>
+
+<% if (player && player.sanity <= (player.max_sanity * 0.3)) { %>
+<style>
+    body {
+        animation: sanity-distort 4s infinite alternate ease-in-out;
+        box-shadow: inset 0 0 150px rgba(75, 0, 130, 0.35);
+    }
+    @keyframes sanity-distort {
+        0%   { filter: blur(0px)  hue-rotate(0deg)   contrast(1);    }
+        50%  { filter: blur(1px)  hue-rotate(-8deg)  contrast(1.08); }
+        100% { filter: blur(2px)  hue-rotate(8deg)   contrast(1.15); }
+    }
+    .dnd-hud__stat--san span {
+        color: var(--col-blood-lit) !important;
+        animation: pulse-blood 2s infinite;
+    }
+    @keyframes pulse-blood {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.45; }
+    }
+</style>
+<% } %>

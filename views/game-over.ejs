@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+        /* แอนิเมชันให้ตัวอักษรค่อยๆ ขยายและจางเข้ามา */
+        @keyframes fadeZoom {
+            0% { opacity: 0; transform: scale(1.5); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+
+        /* แอนิเมชันหมอกหรือแสงสีแดงจางๆ ด้านหลัง */
+        @keyframes pulseGlow {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.1; }
+        }
+
+        .you-died-title {
+            font-family: 'UnifrakturMaguntia', serif;
+            animation: fadeZoom 3s ease-out forwards;
+        }
+
+        .bg-glow {
+            animation: pulseGlow 4s infinite ease-in-out;
+        }
+
+        .souls-link {
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .souls-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background: currentColor;
+            transition: all 0.5s ease;
+            transform: translateX(-50%);
+        }
+
+        .souls-link:hover::after {
+            width: 80%;
+        }
+
+        /* แอนิเมชันสำหรับค่อยๆ ปรากฏตัว (Fade In) */
+        @keyframes fadeIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* เพิ่ม Utilities สำหรับ Tailwind กรณีที่มันไม่เจนให้ */
+        .animate-\[fadeIn_2s_ease-in_2s_forwards\] {
+            animation: fadeIn 2s ease-in 2s forwards;
+        }
+
+        .animate-\[fadeIn_1s_ease-in_3s_forwards\] {
+            animation: fadeIn 1s ease-in 3s forwards;
+        }
+        
+    </style>
+</head>
+<body class="h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
+    
+    <div class="absolute inset-0 bg-red-900 bg-glow z-0"></div>
+    
+    <div class="absolute w-full h-[1px] bg-gradient-to-r from-transparent via-red-900 to-transparent top-1/2 -translate-y-1/2 opacity-50"></div>
+
+    <div class="z-10 text-center flex flex-col items-center px-4">
+        <h1 class="you-died-title text-7xl md:text-9xl font-bold text-red-700 tracking-[0.2em] uppercase mb-4" 
+            style="text-shadow: 0 0 40px rgba(0, 0, 0, 1), 0 0 20px rgba(153, 27, 27, 0.6);">
+            You Died
+        </h1>
+        
+        <p class="text-gray-500 mb-12 text-sm md:text-lg tracking-widest uppercase opacity-0 animate-[fadeIn_2s_ease-in_2s_forwards]">
+            ชะตากรรมขาดสะบั้น... จิตวิญญาณสลายคืนสู่ผืนดิน
+        </p>
+        
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8 opacity-0 animate-[fadeIn_1s_ease-in_3s_forwards]">
+            <a href="/load-save" class="souls-link px-10 py-3 text-gray-400 hover:text-white font-light tracking-tighter transition">
+                <i class="fa-solid fa-clock-rotate-left mr-2 text-xs"></i> หวนคืนสู่จุดเริ่มต้น (Load Save)
+            </a>
+            
+            <div class="hidden md:block w-[1px] h-10 bg-gray-800"></div>
+
+            <a href="/start-game" class="souls-link px-10 py-3 text-red-900 hover:text-red-500 font-light tracking-tighter transition">
+                <i class="fa-solid fa-skull mr-2 text-xs"></i> ยอมรับความตาย (Restart)
+            </a>
+        </div>
+    </div>
+
+    <div class="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+
+</body>
+</html>
