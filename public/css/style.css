@@ -1,553 +1,905 @@
 /* ═══════════════════════════════════════════════════════
    D&D QUIZ RPG — DARK FANTASY STYLESHEET
-   Inspired by Dark Souls / Elden Ring / Bloodborne
+   Inspired by Dark Souls / Elden Ring
    ═══════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
-/* ── ROOT TOKENS ────────────────────────────────────── */
+/* ── TOKENS ──────────────────────────────────────────── */
 :root {
-  /* Stone & Ash */
-  --col-void:        #080806;
-  --col-deep:        #0e0d0a;
-  --col-stone:       #161410;
-  --col-panel:       #1c1a15;
-  --col-surface:     #23201a;
-  --col-muted:       #2e2b23;
-  --col-border:      #3a342a;
-  --col-border-lit:  #5a5040;
+  --void:         #07060a;
+  --deep:         #0d0b10;
+  --stone:        #13111a;
+  --panel:        #1a1722;
+  --surface:      #201d28;
+  --muted:        #2a2635;
+  --border:       #38323f;
+  --border-lit:   #524b5e;
 
-  /* Text */
-  --col-ash:         #a89f8c;
-  --col-parchment:   #d4c9a8;
-  --col-ivory:       #e8dfc4;
+  --parchment:    #c9bfa8;
+  --ivory:        #e0d6bc;
+  --ash:          #8a8096;
 
-  /* Accent Gold */
-  --col-gold:        #c9a84c;
-  --col-gold-bright: #e8c96a;
-  --col-gold-dim:    #7a6328;
+  --gold:         #c8a84b;
+  --gold-bright:  #e6c46a;
+  --gold-dim:     #7a6228;
+  --gold-glow:    rgba(200,168,75,0.15);
 
-  /* Status */
-  --col-blood:       #8b1a1a;
-  --col-blood-lit:   #c42b2b;
-  --col-sanity:      #6b3fa0;
-  --col-sanity-lit:  #9b6dd0;
-  --col-bone:        #b5a98a;
+  --hp-green:     #4a8c5c;
+  --hp-green-lit: #6aad7c;
+  --sanity-pur:   #7a50b0;
+  --sanity-lit:   #a07ad0;
+  --blood:        #8b1a1a;
+  --blood-lit:    #c43030;
+  --equip-blue:   #3a6090;
+  --equip-blue-lit:#5a88b8;
 
-  /* Typography */
-  --font-title:   'Cinzel', serif;
-  --font-body:    'Crimson Text', serif;
-  --font-lore:    'IM Fell English', serif;
-
-  /* Transition */
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --font-title:   'Cinzel', 'Times New Roman', serif;
+  --font-body:    'Crimson Text', Georgia, serif;
+  --ease:         cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── BASE ───────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+/* ── BASE ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background-color: var(--col-deep);
+  background-color: var(--deep);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  color: var(--col-parchment);
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200,168,75,0.03) 0%, transparent 65%);
+  color: var(--parchment);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.7;
+  line-height: 1.65;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-title);
-  font-weight: 600;
-  color: var(--col-ivory);
-  letter-spacing: 0.05em;
-  line-height: 1.2;
-}
+::selection { background: rgba(200,168,75,0.18); color: var(--ivory); }
 
-p {
-  font-family: var(--font-body);
-  color: var(--col-parchment);
-}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--stone); }
+::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
 
-a {
-  color: var(--col-gold);
-  text-decoration: none;
-  transition: color 0.2s var(--ease);
-}
-a:hover {
-  color: var(--col-gold-bright);
-}
-
-/* ── TAILWIND OVERRIDES ─────────────────────────────── */
-/* Override the Tailwind dnd-* colors with our tokens */
-.bg-dnd-dark    { background-color: var(--col-deep) !important; }
-.bg-dnd-panel   { background-color: var(--col-panel) !important; }
-.text-dnd-accent { color: var(--col-gold) !important; }
-.text-dnd-sanity { color: var(--col-sanity-lit) !important; }
-.border-gray-700 { border-color: var(--col-border) !important; }
-.border-gray-600 { border-color: var(--col-border-lit) !important; }
-.bg-gray-800    { background-color: var(--col-surface) !important; }
-.bg-gray-900    { background-color: var(--col-panel) !important; }
-.bg-black\/20   { background-color: rgba(0,0,0,0.3) !important; }
-
-/* ── HEADER ─────────────────────────────────────────── */
-header.bg-dnd-panel {
-  background: var(--col-panel) !important;
-  border-bottom: 1px solid var(--col-border) !important;
-  box-shadow:
-    0 1px 0 rgba(201,168,76,0.08),
-    0 4px 24px rgba(0,0,0,0.6);
+/* ══════════════════════════════════════════════════════
+   HEADER
+   ══════════════════════════════════════════════════════ */
+#site-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
   position: relative;
+  z-index: 100;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.55);
 }
 
-header.bg-dnd-panel::after {
+#site-header::after {
   content: '';
   position: absolute;
-  bottom: -1px;
-  left: 0; right: 0;
+  bottom: 0; left: 0; right: 0;
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    var(--col-gold-dim) 20%,
-    var(--col-gold) 50%,
-    var(--col-gold-dim) 80%,
+    var(--gold-dim) 25%,
+    var(--gold) 50%,
+    var(--gold-dim) 75%,
     transparent 100%);
-  opacity: 0.5;
+  opacity: 0.4;
+}
+
+.header-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
 }
 
 /* Logo */
-#homeLogo {
-  font-family: var(--font-title) !important;
-  font-size: 1.1rem !important;
-  color: var(--col-gold) !important;
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
   letter-spacing: 0.08em;
-  transition: color 0.2s var(--ease), text-shadow 0.2s var(--ease);
+  transition: color 0.2s var(--ease);
+  white-space: nowrap;
 }
-#homeLogo:hover {
-  color: var(--col-gold-bright) !important;
-  text-shadow: 0 0 20px rgba(201,168,76,0.3);
-}
-#homeLogo i {
-  opacity: 0.85;
+.header-logo i { font-size: 1.1rem; opacity: 0.9; }
+.header-logo:hover { color: var(--gold-bright); }
+.header-logo.is-locked { color: var(--ash); cursor: not-allowed; opacity: 0.55; }
+
+/* HUD */
+.header-hud {
+  display: flex;
+  align-items: center;
+  background: var(--stone);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-/* HUD Stats */
-.text-green-400 {
-  color: #6aab6a !important;
-  font-family: var(--font-title);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
+.hud-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
 }
-.text-yellow-400 {
-  color: var(--col-gold) !important;
+.hud-stat i { font-size: 0.75rem; flex-shrink: 0; }
+.hud-label {
   font-family: var(--font-title);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--ash);
+  text-transform: uppercase;
 }
-.text-dnd-sanity {
+.hud-value {
   font-family: var(--font-title);
   font-size: 0.75rem;
-  letter-spacing: 0.06em;
+  color: var(--ivory);
+}
+.hud-hp i     { color: var(--hp-green-lit); }
+.hud-sanity i { color: var(--sanity-lit); }
+.hud-gold i   { color: var(--gold); }
+
+.hud-divider { width: 1px; align-self: stretch; background: var(--border); }
+
+/* Right */
+.header-right { display: flex; align-items: center; gap: 0.5rem; }
+
+.header-username {
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.07em;
+  color: var(--ivory);
+  padding-right: 0.5rem;
 }
 
-/* Username */
-header .text-white.font-bold {
-  font-family: var(--font-title);
-  font-size: 0.8rem;
-  color: var(--col-ivory) !important;
-  letter-spacing: 0.06em;
-}
-
-/* Inventory Button */
-#inventoryBtn {
+.header-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--col-border);
+  width: 34px; height: 34px;
+  background: var(--stone);
+  border: 1px solid var(--border);
   border-radius: 3px;
-  background: var(--col-muted);
-  color: var(--col-gold) !important;
-  transition: all 0.2s var(--ease);
+  color: var(--ash);
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
 }
-#inventoryBtn:hover {
-  background: var(--col-surface);
-  border-color: var(--col-gold-dim);
-  color: var(--col-gold-bright) !important;
+.header-icon-btn:hover {
+  background: var(--surface);
+  border-color: var(--border-lit);
+  color: var(--gold);
 }
-#inventoryBtn i { font-size: 0.875rem; }
+.header-icon-btn.is-locked { color: var(--border-lit); cursor: not-allowed; opacity: 0.45; }
+.header-icon-btn.is-locked:hover { color: var(--border-lit); border-color: var(--border); background: var(--stone); }
 
-/* Logout */
-header a[href="/logout"] {
-  color: #8b3a3a !important;
-  border-left: 1px solid var(--col-border) !important;
-  font-size: 0.875rem;
-  transition: color 0.2s var(--ease);
+.header-logout { margin-left: 0.25rem; }
+.header-logout:hover { color: var(--blood-lit) !important; border-color: var(--blood) !important; }
+
+/* Sanity Effects */
+@keyframes sanity-warp {
+  0%   { filter: blur(0)  hue-rotate(0deg)  contrast(1);    }
+  50%  { filter: blur(1px) hue-rotate(-8deg) contrast(1.08); }
+  100% { filter: blur(2px) hue-rotate(10deg) contrast(1.15); }
 }
-header a[href="/logout"]:hover {
-  color: var(--col-blood-lit) !important;
+@keyframes pulse-madness {
+  0%, 100% { opacity: 1; color: var(--sanity-lit); }
+  50%       { opacity: 0.45; color: var(--blood-lit); }
+}
+body.sanity-critical {
+  animation: sanity-warp 4s infinite alternate ease-in-out;
+  box-shadow: inset 0 0 120px rgba(100,40,160,0.28);
+}
+body.sanity-critical .hud-sanity i,
+body.sanity-critical .hud-sanity .hud-value {
+  animation: pulse-madness 2s infinite;
 }
 
-/* ── INVENTORY SIDEBAR ───────────────────────────────── */
-#inventorySidebar {
-  background: var(--col-panel) !important;
-  border-left: 1px solid var(--col-border) !important;
-  box-shadow: -8px 0 40px rgba(0,0,0,0.7);
+/* ══════════════════════════════════════════════════════
+   INVENTORY SIDEBAR
+   ══════════════════════════════════════════════════════ */
+.inv-sidebar {
+  position: fixed;
+  inset-block: 0;
+  right: 0;
+  width: 20rem;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  box-shadow: -6px 0 40px rgba(0,0,0,0.65);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s var(--ease);
+  z-index: 50;
 }
+.inv-sidebar.translate-x-full   { transform: translateX(100%); }
+.inv-sidebar:not(.translate-x-full) { transform: translateX(0); }
 
 /* Sidebar Header */
-#inventorySidebar > div:first-child {
-  background: var(--col-stone) !important;
-  border-bottom: 1px solid var(--col-border) !important;
+.inv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: var(--stone);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-#inventorySidebar h3 {
-  font-family: var(--font-title) !important;
-  font-size: 1rem !important;
-  color: var(--col-gold) !important;
+.inv-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
   letter-spacing: 0.08em;
+  color: var(--gold);
 }
-#inventorySidebar > div:first-child button {
-  color: var(--col-ash);
-  transition: color 0.15s;
+.inv-close-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--ash);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
 }
-#inventorySidebar > div:first-child button:hover {
-  color: var(--col-ivory);
-}
+.inv-close-btn:hover { color: var(--ivory); border-color: var(--border-lit); }
 
 /* Class Banner */
-#inventorySidebar .bg-gray-800.border-b {
-  background: rgba(0,0,0,0.25) !important;
-  border-bottom: 1px solid var(--col-border) !important;
+.inv-class-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-#inventorySidebar h4 {
-  font-family: var(--font-title) !important;
-  font-size: 0.95rem !important;
-  color: var(--col-ivory) !important;
+.inv-class-name {
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ivory);
+  letter-spacing: 0.05em;
+  margin-top: 0.1rem;
 }
-#inventorySidebar p.text-gray-500 {
-  color: var(--col-ash) !important;
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-}
+.inv-class-icon { color: var(--border-lit); font-size: 1.2rem; }
 
-/* Equipment Slots */
-#inventorySidebar .bg-gray-900\/50 {
-  background: rgba(8,8,6,0.5) !important;
-  border: 1px dashed var(--col-border) !important;
-  transition: border-color 0.2s;
-}
-#inventorySidebar .bg-gray-900\/50:hover {
-  border-color: var(--col-border-lit) !important;
-}
-#inventorySidebar .text-gray-700 { color: var(--col-border-lit) !important; }
-#inventorySidebar .text-gray-500 { color: var(--col-ash) !important; }
-
-/* Weapon/Armor slot names */
-#inventorySidebar .text-yellow-500 { color: var(--col-gold) !important; }
-#inventorySidebar .text-blue-400   { color: #7aabe0 !important; }
-
-/* Item Cards */
-#inventorySidebar .bg-gray-800.border.border-gray-700 {
-  background: var(--col-surface) !important;
-  border: 1px solid var(--col-border) !important;
-  border-radius: 3px !important;
-  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
-}
-#inventorySidebar .bg-gray-800.border.border-gray-700:hover {
-  background: var(--col-muted) !important;
-  border-color: var(--col-border-lit) !important;
-}
-
-/* Equipped state */
-#inventorySidebar .border-yellow-500 {
-  border-color: var(--col-gold-dim) !important;
-  background: rgba(201,168,76,0.05) !important;
-  box-shadow: inset 0 0 12px rgba(201,168,76,0.06) !important;
-}
-#inventorySidebar .shadow-\[0_0_10px_rgba\(234\,179\,8\,0\.3\)\] {
-  box-shadow: 0 0 12px rgba(201,168,76,0.15) !important;
-}
-
-/* Equipped Badge */
-#inventorySidebar .bg-yellow-500 {
-  background: var(--col-gold-dim) !important;
-  color: var(--col-ivory) !important;
+/* Section Label */
+.inv-section-label {
   font-family: var(--font-title);
   font-size: 0.55rem;
-  letter-spacing: 0.1em;
-  border-radius: 2px !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-bottom: 0.5rem;
 }
 
-/* Item names */
-#inventorySidebar h4.text-white {
-  font-family: var(--font-title) !important;
-  font-size: 0.75rem !important;
-  color: var(--col-parchment) !important;
-  letter-spacing: 0.04em;
+/* Equipped Slots */
+.inv-equipped-section {
+  padding: 0.75rem 1rem;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-#inventorySidebar h4.text-yellow-400 {
-  color: var(--col-gold) !important;
+.inv-equip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.inv-equip-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.4rem;
+  background: rgba(0,0,0,0.35);
+  border: 1px dashed var(--border);
+  border-radius: 2px;
+  text-align: center;
+  min-height: 68px;
+  transition: border-color 0.2s;
 }
-#inventorySidebar p.text-gray-400 {
-  color: var(--col-ash) !important;
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  line-height: 1.4;
+.inv-equip-slot:hover { border-color: var(--border-lit); }
+.inv-slot-icon { font-size: 0.85rem; color: var(--border-lit); margin-bottom: 0.1rem; }
+.inv-slot-label {
+  font-family: var(--font-title);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.inv-slot-value {
+  font-family: var(--font-title);
+  font-size: 0.65rem;
+  font-weight: 600;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.25rem;
+}
+.inv-slot-weapon { color: var(--gold); }
+.inv-slot-armor  { color: var(--equip-blue-lit); }
+
+/* Item List */
+.inv-item-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Item Card */
+.inv-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.inv-item:hover { border-color: var(--border-lit); background: var(--muted); }
+.inv-item--equipped {
+  border-color: var(--gold-dim);
+  background: rgba(200,168,75,0.05);
+  box-shadow: 0 0 10px rgba(200,168,75,0.08);
+}
+
+.inv-equipped-badge {
+  position: absolute;
+  top: -9px; left: 8px;
+  background: var(--gold-dim);
+  color: var(--ivory);
+  font-family: var(--font-title);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  padding: 1px 6px;
+  border-radius: 2px;
 }
 
 /* Item Type Icons */
-/* Potion */
-.bg-red-900\/50  { background: rgba(80,10,10,0.45) !important; border-color: #5a2020 !important; }
-.text-red-400    { color: #c06060 !important; }
-/* Scroll */
-.bg-purple-900\/50 { background: rgba(50,15,80,0.45) !important; border-color: #4a2870 !important; }
-.text-purple-400   { color: #9b6dd0 !important; }
-/* Weapon */
-.border-yellow-600\/50 { border-color: var(--col-gold-dim) !important; }
-.text-yellow-500       { color: var(--col-gold) !important; }
-/* Armor */
-.bg-blue-900\/30 { background: rgba(10,25,55,0.4) !important; border-color: #2a4070 !important; }
+.inv-item-icon {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 2px;
+  border: 1px solid;
+  font-size: 0.85rem;
+}
+.item-potion { background: rgba(90,15,15,0.4);  border-color: rgba(140,50,50,0.5);   color: #c06060; }
+.item-scroll { background: rgba(55,20,85,0.4);  border-color: rgba(100,55,130,0.5);  color: #9b6dd0; }
+.item-weapon { background: rgba(40,35,10,0.5);  border-color: var(--gold-dim);        color: var(--gold); }
+.item-armor  { background: rgba(15,30,60,0.4);  border-color: rgba(45,75,115,0.6);   color: var(--equip-blue-lit); }
+.item-misc   { background: var(--stone);         border-color: var(--border);          color: var(--ash); }
 
-/* Quantity */
-#inventorySidebar .text-gray-300.font-bold {
+/* Item Info */
+.inv-item-info { flex: 1; min-width: 0; }
+.inv-item-name {
   font-family: var(--font-title);
-  font-size: 0.8rem;
-  color: var(--col-ash) !important;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--parchment);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-/* Item Action Buttons */
-#inventorySidebar button.bg-red-600 {
-  background: var(--col-blood) !important;
-  border: 1px solid rgba(139,26,26,0.6) !important;
-  font-family: var(--font-title);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  border-radius: 2px !important;
-  transition: background 0.15s;
-}
-#inventorySidebar button.bg-red-600:hover {
-  background: var(--col-blood-lit) !important;
-}
-#inventorySidebar button.bg-blue-600 {
-  background: #1a3560 !important;
-  border: 1px solid #2a4880 !important;
-  font-family: var(--font-title);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  border-radius: 2px !important;
-  transition: background 0.15s;
-}
-#inventorySidebar button.bg-blue-600:hover {
-  background: #204070 !important;
-}
-#inventorySidebar button.bg-gray-600 {
-  background: var(--col-muted) !important;
-  border: 1px solid var(--col-border-lit) !important;
-  font-family: var(--font-title);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  border-radius: 2px !important;
+.inv-item-name--equipped { color: var(--gold); }
+.inv-item-desc {
+  font-size: 0.68rem;
+  color: var(--ash);
+  line-height: 1.35;
+  margin-top: 0.1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Empty Bag */
-#inventorySidebar .text-gray-500 i { color: var(--col-border-lit); }
-#inventorySidebar .text-center.text-gray-500 p {
-  font-family: var(--font-lore);
-  font-style: italic;
-  color: var(--col-ash) !important;
+/* Actions */
+.inv-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
 }
+.inv-item-qty { font-family: var(--font-title); font-size: 0.72rem; color: var(--ash); }
 
-/* ── FOOTER ─────────────────────────────────────────── */
+.inv-btn {
+  font-family: var(--font-title);
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.inv-btn-val { opacity: 0.75; margin-left: 2px; }
+
+.inv-btn--use    { background: rgba(100,20,20,0.5); border-color: var(--blood); color: #d07070; }
+.inv-btn--use:hover { background: rgba(139,26,26,0.65); border-color: var(--blood-lit); }
+
+.inv-btn--equip  { background: rgba(25,45,80,0.5); border-color: var(--equip-blue); color: var(--equip-blue-lit); }
+.inv-btn--equip:hover { background: rgba(35,60,105,0.65); }
+
+.inv-btn--unequip { background: var(--muted); border-color: var(--border-lit); color: var(--ash); }
+.inv-btn--unequip:hover { background: var(--surface); }
+
+/* Empty State */
+.inv-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.75rem; padding: 3rem 1rem;
+}
+.inv-empty i { font-size: 2.2rem; color: var(--border-lit); opacity: 0.5; }
+.inv-empty p { font-family: var(--font-title); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--ash); }
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════ */
 footer {
-  background: var(--col-stone);
-  border-top: 1px solid var(--col-border);
+  margin-top: auto;
+  background: var(--stone);
+  border-top: 1px solid var(--border);
+  padding: 0.9rem 1rem;
+  text-align: center;
   position: relative;
 }
 footer::before {
   content: '';
   position: absolute;
-  top: -1px;
-  left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    var(--col-gold-dim) 30%,
-    var(--col-gold-dim) 70%,
-    transparent 100%);
-  opacity: 0.3;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim) 30%, var(--gold-dim) 70%, transparent);
+  opacity: 0.25;
 }
 footer p {
   font-family: var(--font-title);
-  font-size: 0.65rem;
-  color: var(--col-ash) !important;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* ═══════════════════════════════════════════════════════
+   COMPONENT CLASSES (ใช้กับ header.ejs / inventorySidebar.ejs)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── HEADER ─────────────────────────────────────────── */
+.dnd-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.55);
+  position: relative;
+  z-index: 100;
+}
+.dnd-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%, var(--gold-dim) 20%,
+    var(--gold) 50%, var(--gold-dim) 80%, transparent 100%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.dnd-header__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+/* Logo */
+.dnd-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color 0.2s var(--ease), text-shadow 0.2s var(--ease);
+}
+.dnd-header__logo i { font-size: 1rem; opacity: 0.9; }
+.dnd-header__logo:hover {
+  color: var(--gold-bright);
+  text-shadow: 0 0 20px rgba(201,168,76,0.3);
+}
+
+/* HUD */
+.dnd-hud {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.dnd-hud__sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border-lit);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.dnd-hud__stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-title);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+.dnd-hud__stat i {
+  font-size: 0.7rem;
+  width: 14px;
+  text-align: center;
+}
+.dnd-hud__stat--hp  i,
+.dnd-hud__stat--hp  span { color: #6aab6a; }
+.dnd-hud__stat--san i,
+.dnd-hud__stat--san span { color: var(--sanity-lit); }
+.dnd-hud__stat--gld i,
+.dnd-hud__stat--gld span { color: var(--gold); }
+
+/* Right controls */
+.dnd-header__ctrl {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.dnd-header__username {
+  font-family: var(--font-title);
+  font-size: 0.7rem;
+  color: var(--ivory);
+  letter-spacing: 0.07em;
+  padding-right: 0.75rem;
+  border-right: 1px solid var(--border);
+  margin-right: 0.25rem;
+}
+
+/* Icon buttons */
+.dnd-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--muted);
+  color: var(--gold);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  text-decoration: none;
+}
+.dnd-icon-btn:hover {
+  background: var(--surface);
+  border-color: var(--gold-dim);
+  color: var(--gold-bright);
+}
+.dnd-icon-btn--logout {
+  color: #8b3a3a;
+}
+.dnd-icon-btn--logout:hover {
+  color: var(--blood-lit);
+  border-color: var(--blood);
+  background: rgba(139,26,26,0.1);
+}
+.dnd-icon-btn--locked {
+  color: var(--border-lit) !important;
+  border-color: var(--border) !important;
+  background: var(--stone) !important;
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.dnd-sidebar {
+  position: fixed;
+  inset-y: 0;
+  right: 0;
+  width: 280px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.7);
+  transform: translateX(100%);
+  transition: transform 300ms cubic-bezier(0.4,0,0.2,1);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+.dnd-sidebar.translate-x-full { transform: translateX(100%); }
+.dnd-sidebar:not(.translate-x-full) { transform: translateX(0); }
+
+/* Sidebar Header */
+.dnd-sb__head {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--stone);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.dnd-sb__head h3 {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+.dnd-sb__head h3 i { margin-right: 6px; opacity: 0.85; }
+.dnd-sb__close {
+  background: none;
+  border: none;
+  color: var(--ash);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.dnd-sb__close:hover { color: var(--ivory); }
+
+/* Class Banner */
+.dnd-sb__class {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+/* Equipment Section */
+.dnd-sb__equip {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+.dnd-sb__sublabel {
+  font-family: var(--font-title);
+  font-size: 0.55rem;
+  color: var(--ash);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.dnd-equip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.dnd-equip-slot {
+  background: rgba(8,8,6,0.5);
+  border: 1px dashed var(--border);
+  border-radius: 2px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  text-align: center;
+  gap: 3px;
+  transition: border-color 0.15s;
+}
+.dnd-equip-slot:hover { border-color: var(--border-lit); }
+.dnd-equip-slot i {
+  font-size: 0.75rem;
+  color: var(--border-lit);
+}
+.dnd-equip-slot__type {
+  font-family: var(--font-title);
+  font-size: 0.5rem;
+  color: var(--ash);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-
-/* ── DIVIDERS ─────────────────────────────────────────*/
-.dnd-divider {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent,
-    var(--col-border-lit) 30%,
-    var(--col-gold-dim) 50%,
-    var(--col-border-lit) 70%,
-    transparent);
-  margin: 1.5rem 0;
-}
-
-/* ── BUTTONS (General) ───────────────────────────────── */
-.btn-primary {
-  display: inline-block;
+.dnd-equip-slot__name {
   font-family: var(--font-title);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: var(--col-gold);
-  background: transparent;
-  border: 1px solid var(--col-gold-dim);
-  padding: 0.5rem 1.5rem;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.2s var(--ease);
-  position: relative;
+  font-size: 0.62rem;
+  color: var(--gold);
   overflow: hidden;
-}
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(201,168,76,0.05);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.btn-primary:hover {
-  border-color: var(--col-gold);
-  color: var(--col-gold-bright);
-  box-shadow: 0 0 16px rgba(201,168,76,0.12);
-}
-.btn-primary:hover::before { opacity: 1; }
-
-.btn-danger {
-  font-family: var(--font-title);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: #c06060;
-  background: transparent;
-  border: 1px solid var(--col-blood);
-  padding: 0.5rem 1.5rem;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.2s var(--ease);
-}
-.btn-danger:hover {
-  background: rgba(139,26,26,0.15);
-  border-color: var(--col-blood-lit);
-  color: #e07070;
-}
-
-/* ── PANELS & CARDS ──────────────────────────────────── */
-.dnd-card {
-  background: var(--col-panel);
-  border: 1px solid var(--col-border);
-  border-radius: 3px;
-  position: relative;
-}
-.dnd-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--col-border-lit), transparent);
-}
-
-.dnd-panel {
-  background: var(--col-surface);
-  border: 1px solid var(--col-border);
-  border-radius: 2px;
-  padding: 1.25rem 1.5rem;
-}
-
-/* ── FORM INPUTS ─────────────────────────────────────── */
-input, select, textarea {
-  background: var(--col-stone);
-  border: 1px solid var(--col-border);
-  border-radius: 2px;
-  color: var(--col-parchment);
-  font-family: var(--font-body);
-  padding: 0.5rem 0.75rem;
-  transition: border-color 0.2s var(--ease);
-  outline: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   width: 100%;
+  text-align: center;
 }
-input:focus, select:focus, textarea:focus {
-  border-color: var(--col-gold-dim);
-  box-shadow: 0 0 0 2px rgba(201,168,76,0.08);
-}
-input::placeholder { color: var(--col-ash); opacity: 0.6; }
+.dnd-equip-slot__name--armor { color: #7aabe0; }
 
-label {
-  font-family: var(--font-title);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  color: var(--col-ash);
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 0.4rem;
+/* Item List */
+.dnd-sb__items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* ── SCROLLBAR ─────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--col-stone); }
-::-webkit-scrollbar-thumb {
-  background: var(--col-border-lit);
+/* Item Card */
+.dnd-item {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 2px;
+  padding: 8px 10px 8px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
 }
-::-webkit-scrollbar-thumb:hover { background: var(--col-gold-dim); }
-
-/* ── SANITY LOW WARNING ──────────────────────────────── */
-/* (Overrides the inline <style> from header.ejs for consistency) */
-@keyframes sanity-distort {
-  0%   { filter: blur(0px) hue-rotate(0deg) contrast(1); }
-  50%  { filter: blur(1px) hue-rotate(-8deg) contrast(1.08); }
-  100% { filter: blur(2px) hue-rotate(8deg) contrast(1.15); }
+.dnd-item:hover {
+  background: var(--muted);
+  border-color: var(--border-lit);
 }
-@keyframes pulse-blood {
-  0%, 100% { opacity: 1; color: var(--col-sanity-lit); }
-  50%       { opacity: 0.5; color: var(--col-blood-lit); }
-}
-.sanity-low body {
-  animation: sanity-distort 4s infinite alternate ease-in-out;
-  box-shadow: inset 0 0 120px rgba(107,63,160,0.25);
-}
-.sanity-low .text-dnd-sanity {
-  animation: pulse-blood 2s infinite;
+.dnd-item--equipped {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.04);
+  box-shadow: inset 0 0 10px rgba(201,168,76,0.05);
 }
 
-/* ── SELECTION ─────────────────────────────────────── */
-::selection {
-  background: rgba(201,168,76,0.2);
-  color: var(--col-ivory);
+/* Equipped Badge */
+.dnd-item__badge {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  background: var(--gold-dim);
+  color: var(--ivory);
+  font-family: var(--font-title);
+  font-size: 0.45rem;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 1px 0 2px 0;
+  line-height: 1.5;
 }
 
-/* ── UTILITY ───────────────────────────────────────── */
-.text-gold    { color: var(--col-gold); }
-.text-ash     { color: var(--col-ash); }
-.text-ivory   { color: var(--col-ivory); }
-.text-blood   { color: var(--col-blood-lit); }
-.text-sanity  { color: var(--col-sanity-lit); }
-.font-title   { font-family: var(--font-title); }
-.font-lore    { font-family: var(--font-lore); font-style: italic; }
+/* Item Icon */
+.dnd-item__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+.dnd-item__icon--weapon {
+  background: rgba(30,20,5,0.6);
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+.dnd-item__icon--heal {
+  background: rgba(80,10,10,0.45);
+  border-color: #5a2020;
+  color: #c06060;
+}
+.dnd-item__icon--scroll {
+  background: rgba(50,15,80,0.45);
+  border-color: #4a2870;
+  color: var(--sanity-lit);
+}
+.dnd-item__icon--armor {
+  background: rgba(10,25,55,0.4);
+  border-color: #2a4070;
+  color: #7aabe0;
+}
+.dnd-item__icon--default {
+  background: rgba(20,20,16,0.5);
+  border-color: var(--border);
+  color: var(--ash);
+}
+
+/* Item Info */
+.dnd-item__info {
+  flex: 1;
+  min-width: 0;
+}
+.dnd-item__name {
+  font-family: var(--font-title);
+  font-size: 0.67rem;
+  color: var(--parchment);
+  letter-spacing: 0.03em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+.dnd-item__name--equipped { color: var(--gold); }
+.dnd-item__desc {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  color: var(--ash);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Item Actions */
+.dnd-item__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.dnd-item__qty {
+  font-family: var(--font-title);
+  font-size: 0.65rem;
+  color: var(--ash);
+}
+.dnd-item-btn {
+  font-family: var(--font-title);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s var(--ease);
+  color: var(--ivory);
+}
+.dnd-item-btn--use {
+  background: var(--blood);
+  border-color: rgba(139,26,26,0.6);
+}
+.dnd-item-btn--use:hover { background: var(--blood-lit); }
+.dnd-item-btn--equip {
+  background: #1a3560;
+  border-color: #2a4880;
+}
+.dnd-item-btn--equip:hover { background: #204070; }
+.dnd-item-btn--unequip {
+  background: var(--muted);
+  border-color: var(--border-lit);
+  color: var(--ash);
+}
+.dnd-item-btn--unequip:hover { background: var(--surface); }
+
+/* Empty state */
+.dnd-sb__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  gap: 0.75rem;
+  color: var(--ash);
+  text-align: center;
+}
+.dnd-sb__empty i { font-size: 2rem; color: var(--border-lit); }
+.dnd-sb__empty p {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--ash);
+}
